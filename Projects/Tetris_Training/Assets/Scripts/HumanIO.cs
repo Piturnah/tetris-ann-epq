@@ -17,7 +17,19 @@ public class HumanIO : MonoBehaviour
     private void Update()
     {
         // Update the visible tiles
-        UpdateTiles();   
+        UpdateTiles();
+        DetectRotationIO();
+    }
+
+    void DetectRotationIO()
+    {
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            engine.RotateTetromino(-1);
+        } else if (Input.GetKeyDown(KeyCode.X))
+        {
+            engine.RotateTetromino(1);
+        }
     }
 
     void UpdateTiles()
