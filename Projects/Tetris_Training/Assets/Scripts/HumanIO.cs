@@ -19,6 +19,13 @@ public class HumanIO : MonoBehaviour
         // Update the visible tiles
         UpdateTiles();
         DetectRotationIO();
+        DetectHorizontalInput();
+    }
+
+    void DetectHorizontalInput()
+    {
+        engine.buttonInfo.lButton = Input.GetKey(KeyCode.LeftArrow);
+        engine.buttonInfo.rbutton = Input.GetKey(KeyCode.RightArrow);
     }
 
     void DetectRotationIO()
