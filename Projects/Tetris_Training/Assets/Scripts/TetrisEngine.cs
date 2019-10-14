@@ -126,6 +126,7 @@ public class TetrisEngine : MonoBehaviour
                 break;
         }
         currentTetrominoState = Slicer3D(tetrominoPool, 0);
+        rotationState = 0;
         currentTetrominoPos[0] = 4;
         currentTetrominoPos[1] = 18;
     }
