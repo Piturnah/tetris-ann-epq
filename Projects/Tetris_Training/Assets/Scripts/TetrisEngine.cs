@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * This is the engine responsible for running Tetris. During training, multiple instances of this object will exist, one for each AI agent.
+ * The tetris field is stored in the 2D array field, and the currently active tetromino is stored in the 2D array currentTetrominoState.
+ * field only stores values for tetrominoes that have already landed, so for visualisation the method UpdateViewField can be called to
+ * return 2D array viewField which is a combination of field and currentTetrominoState based on the tetromino's position.
+ */
 public class TetrisEngine : MonoBehaviour
 {
     public ButtonInfo buttonInfo = new ButtonInfo();
@@ -16,7 +22,7 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int level = 6;
+    int level = 9;
     float previousDropTime;
     float previousDASUpdate;
 
@@ -118,6 +124,7 @@ public class TetrisEngine : MonoBehaviour
                 currentTetrominoPos[1]++;
 
                 AddTetrominoToField();
+                CheckForLines();
             }
         }
     }
@@ -152,6 +159,43 @@ public class TetrisEngine : MonoBehaviour
             }
         }
         SpawnTetromino(Random.Range(1, 8));
+    }
+
+    void CheckForLines()
+    {
+        for (int y = 20; y >= 0; y--)
+        {
+            if (CheckRow(y))
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    field[x, y] = 0;
+                }
+                FallAboveRows(y);
+            }
+        }
+    }
+    bool CheckRow(int y)
+    {
+        for (int x = 0; x < 10; x++)
+        {
+            if (field[x,y] == 0)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    void FallAboveRows(int row)
+    {
+        for (int y = row + 1; y < 20; y++)
+        {
+            for (int x = 0; x < 10; x++)
+            {
+                field[x, y - 1] = field[x, y];
+                field[x, y] = 0;
+            }
+        }
     }
 
     //Rotates the tetromino: -1 for ACW, 1 for CW

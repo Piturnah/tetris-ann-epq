@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/*
+ * This object reads keyboard input and produces visualisations for humans.
+ */
 [RequireComponent(typeof(TetrisEngine))]
 public class HumanIO : MonoBehaviour
 {
