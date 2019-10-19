@@ -145,7 +145,7 @@ public class TetrisEngine : MonoBehaviour
         return false;
     }
 
-    //Adds the tetromino to the field and instantiates a new one
+    // Adds the tetromino to the field and instantiates a new one
     void AddTetrominoToField()
     {
         for (int x = 0; x < 4; x++)
@@ -161,6 +161,7 @@ public class TetrisEngine : MonoBehaviour
         SpawnTetromino(Random.Range(1, 8));
     }
 
+    // Called when a tetromino has landed. Iterates over each row of field and checks if there are any lines.
     void CheckForLines()
     {
         for (int y = 20; y >= 0; y--)
@@ -175,6 +176,7 @@ public class TetrisEngine : MonoBehaviour
             }
         }
     }
+    // Called by CheckForLines, returns true when a row of field (y) has no empty spaces.
     bool CheckRow(int y)
     {
         for (int x = 0; x < 10; x++)
@@ -186,6 +188,7 @@ public class TetrisEngine : MonoBehaviour
         }
         return true;
     }
+    //Called by CheckForLines, shifts rows above the deleted row down.
     void FallAboveRows(int row)
     {
         for (int y = row + 1; y < 20; y++)
