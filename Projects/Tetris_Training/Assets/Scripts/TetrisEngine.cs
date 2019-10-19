@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 /*
  * This is the engine responsible for running Tetris. During training, multiple instances of this object will exist, one for each AI agent.
@@ -13,8 +14,8 @@ public class TetrisEngine : MonoBehaviour
     public ButtonInfo buttonInfo = new ButtonInfo();
     const float _FRAME_RATE = 60.098813897441f;
 
-    public int[,] field = new int[10, 22];
-    public int[,] viewField = new int[10, 22];
+    public int[][] field = new int[10][];
+    public int[][] viewField = new int[10][];
 
     int[,,] tetrominoPool = new int[4, 4, 4];
     int[,] currentTetrominoState = new int[4, 4];
@@ -22,13 +23,21 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int level = 9;
+    int level;
     float previousDropTime;
     float previousDASUpdate;
 
     private void Start()
     {
-        SpawnTetromino(Random.Range(1, 8));
+        // Initialise nested arrays of field
+        for (int i = 0; i < field.Length; i++)
+        {
+            field[i] = new int[22];
+            viewField[i] = new int[22];
+        }
+
+        // Spawn first tetromino
+        SpawnTetromino(UnityEngine.Random.Range(1, 8));
     }
     private void Update()
     {
@@ -41,14 +50,14 @@ public class TetrisEngine : MonoBehaviour
     // Update the view field
     void UpdateViewField()
     {
-        viewField = field.Clone() as int[,];
+        viewField = CopyArrayBuiltIn(field);
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x, y] == 1 && x + currentTetrominoPos[0] <= field.GetLength(0) -1 && y + currentTetrominoPos[1] >= 0)
+                if (currentTetrominoState[x, y] == 1 && x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
                 {
-                    viewField[x + currentTetrominoPos[0], y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                    viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
             }
         }
@@ -102,7 +111,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x, y] == 1) && (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x, currentTetrominoPos[1] + y] == 1))
+                if ((currentTetrominoState[x, y] == 1) && (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] == 1))
                 {
                     return true;
                 }
@@ -136,7 +145,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x,y] == 1) && (currentTetrominoPos[1] + y < 0 || field[currentTetrominoPos[0] + x, currentTetrominoPos[1] + y] == 1))
+                if ((currentTetrominoState[x,y] == 1) && (currentTetrominoPos[1] + y < 0 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] == 1))
                 {
                     return true;
                 }
@@ -154,11 +163,11 @@ public class TetrisEngine : MonoBehaviour
             {
                 if (currentTetrominoState[x, y] == 1 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
                 {
-                    field[x + currentTetrominoPos[0], y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                    field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
             }
         }
-        SpawnTetromino(Random.Range(1, 8));
+        SpawnTetromino(UnityEngine.Random.Range(1, 8));
     }
 
     // Called when a tetromino has landed. Iterates over each row of field and checks if there are any lines.
@@ -170,7 +179,7 @@ public class TetrisEngine : MonoBehaviour
             {
                 for (int x = 0; x < 10; x++)
                 {
-                    field[x, y] = 0;
+                    field[x][y] = 0;
                 }
                 FallAboveRows(y);
             }
@@ -181,7 +190,7 @@ public class TetrisEngine : MonoBehaviour
     {
         for (int x = 0; x < 10; x++)
         {
-            if (field[x,y] == 0)
+            if (field[x][y] == 0)
             {
                 return false;
             }
@@ -195,8 +204,8 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int x = 0; x < 10; x++)
             {
-                field[x, y - 1] = field[x, y];
-                field[x, y] = 0;
+                field[x][y - 1] = field[x][y];
+                field[x][y] = 0;
             }
         }
     }
@@ -257,7 +266,7 @@ public class TetrisEngine : MonoBehaviour
         }
         currentTetrominoState = Slicer3D(tetrominoPool, 0);
         rotationState = 0;
-        currentTetrominoPos[0] = 4;
+        currentTetrominoPos[0] = 3;
         currentTetrominoPos[1] = 18;
     }
 
@@ -275,6 +284,23 @@ public class TetrisEngine : MonoBehaviour
         }
 
         return slice;
+    }
+
+    static int[][] CopyArrayBuiltIn(int[][] source)
+    {
+        var len = source.Length;
+        var dest = new int[len][];
+
+        for (var x = 0; x < len; x++)
+        {
+            var inner = source[x];
+            var ilen = inner.Length;
+            var newer = new int[ilen];
+            Array.Copy(inner, newer, ilen);
+            dest[x] = newer;
+        }
+
+        return dest;
     }
 
     // Class to store info about the buttons being "pressed"

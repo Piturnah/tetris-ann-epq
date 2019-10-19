@@ -52,11 +52,11 @@ public class HumanIO : MonoBehaviour
         }
 
         // Instantiate a new tile if it is present in the engine's field array
-        for (int x = 0; x < engine.field.GetLength(0); x++)
+        for (int x = 0; x < engine.field.Length; x++)
         {
-            for (int y = 0; y < engine.field.GetLength(1); y++)
+            for (int y = 0; y < engine.field[0].Length; y++)
             {
-                if (engine.viewField[x, y] == 1)
+                if (engine.viewField[x][y] == 1)
                 {
                     GameObject newTile = Instantiate(tileObj, new Vector2(x, y), Quaternion.identity);
                     newTile.transform.parent = transform;
