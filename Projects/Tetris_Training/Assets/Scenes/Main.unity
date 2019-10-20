@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 115968834}
   - component: {fileID: 115968833}
   - component: {fileID: 115968832}
+  - component: {fileID: 115968835}
   m_Layer: 0
   m_Name: HumanIO
   m_TagString: Untagged
@@ -177,6 +178,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &115968835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 115968831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1eeb90cb23e63044abdc733a9bcdfe7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tileObj: {fileID: 7361052193442686142, guid: 600b70810856eb94686d71de853171a4, type: 3}
 --- !u!1 &750112850
 GameObject:
   m_ObjectHideFlags: 0

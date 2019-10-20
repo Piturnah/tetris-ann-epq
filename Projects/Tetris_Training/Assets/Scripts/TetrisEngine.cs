@@ -16,6 +16,7 @@ public class TetrisEngine : MonoBehaviour
 
     public int[][] field = new int[10][];
     public int[][] viewField = new int[10][];
+    int[][] previousViewField = new int[10][];
 
     int[,,] tetrominoPool = new int[4, 4, 4];
     int[,] currentTetrominoState = new int[4, 4];
@@ -27,6 +28,8 @@ public class TetrisEngine : MonoBehaviour
     float previousDropTime;
     float previousDASUpdate;
 
+    public event Action updateField;
+
     private void Start()
     {
         // Initialise nested arrays of field
@@ -34,6 +37,7 @@ public class TetrisEngine : MonoBehaviour
         {
             field[i] = new int[22];
             viewField[i] = new int[22];
+            previousViewField[i] = new int[22];
         }
 
         // Spawn first tetromino
@@ -60,6 +64,12 @@ public class TetrisEngine : MonoBehaviour
                     viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
             }
+        }
+        if (viewField != previousViewField)
+        {
+            updateField();
+            previousViewField = CopyArrayBuiltIn(viewField);
+            Debug.Log("updating");
         }
     }
     
@@ -288,14 +298,14 @@ public class TetrisEngine : MonoBehaviour
 
     static int[][] CopyArrayBuiltIn(int[][] source)
     {
-        var len = source.Length;
-        var dest = new int[len][];
+        int len = source.Length;
+        int[][] dest = new int[len][];
 
-        for (var x = 0; x < len; x++)
+        for (int x = 0; x < len; x++)
         {
-            var inner = source[x];
-            var ilen = inner.Length;
-            var newer = new int[ilen];
+            int[] inner = source[x];
+            int ilen = inner.Length;
+            int[] newer = new int[ilen];
             Array.Copy(inner, newer, ilen);
             dest[x] = newer;
         }
