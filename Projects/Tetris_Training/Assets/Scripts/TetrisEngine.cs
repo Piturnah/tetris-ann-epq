@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 /*
  * This is the engine responsible for running Tetris. During training, multiple instances of this object will exist, one for each AI agent.
@@ -54,7 +55,7 @@ public class TetrisEngine : MonoBehaviour
     // Update the view field
     void UpdateViewField()
     {
-        viewField = CopyArrayBuiltIn(field);
+        viewField = CopyArray(field);
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
@@ -65,12 +66,25 @@ public class TetrisEngine : MonoBehaviour
                 }
             }
         }
-        if (viewField != previousViewField)
+        // If the view field is different to last frame, call event updateField
+        if (!JaggedsEqual(viewField, previousViewField))
         {
             updateField();
-            previousViewField = CopyArrayBuiltIn(viewField);
-            Debug.Log("updating");
+            previousViewField = CopyArray(viewField);
         }
+    }
+
+    // Returns true if the values of the jagged arrays are equivalent
+    bool JaggedsEqual(int[][] array1, int[][] array2)
+    {
+        for (int row = 0; row < array1.Length; row++)  
+        {
+            if (!array1[row].SequenceEqual(array2[row]))
+            {
+                return false;
+            }
+        }
+        return true;
     }
     
     //Calculate DAS and do horizontal shifting
@@ -296,7 +310,7 @@ public class TetrisEngine : MonoBehaviour
         return slice;
     }
 
-    static int[][] CopyArrayBuiltIn(int[][] source)
+    static int[][] CopyArray(int[][] source)
     {
         int len = source.Length;
         int[][] dest = new int[len][];
