@@ -21,13 +21,15 @@ public class HumanIO : MonoBehaviour
     private void Update()
     {
         DetectRotationIO();
-        DetectHorizontalInput();
+        DetectInput();
     }
 
-    void DetectHorizontalInput()
+    void DetectInput()
     {
-        engine.buttonInfo.lButton = Input.GetKey(KeyCode.LeftArrow);
+        engine.buttonInfo.lButton = Input.GetKey(KeyCode.LeftArrow); // LR Input
         engine.buttonInfo.rbutton = Input.GetKey(KeyCode.RightArrow);
+
+        engine.buttonInfo.dButton = Input.GetKey(KeyCode.DownArrow); // Soft-drop input
     }
 
     void DetectRotationIO()

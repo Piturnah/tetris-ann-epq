@@ -97,11 +97,11 @@ public class TetrisEngine : MonoBehaviour
             //Determine whether to reset DAS counter or to increment DAS counter
             if ((buttonInfo.rbutton == true || buttonInfo.lButton == true) && buttonInfo.lrPreviousFrame == false)
             {
-                buttonInfo.dasCounter = 0;
+                buttonInfo.dasCounter = 0; // Resets counter to 0 if started inputting again after no input previous frame
             }
             else if ((buttonInfo.rbutton == true || buttonInfo.lButton == true) && buttonInfo.lrPreviousFrame == true)
             {
-                buttonInfo.dasCounter++;
+                buttonInfo.dasCounter++; // Increments the counter if inputting current frame and previous frame
             }
 
             if ((buttonInfo.dasCounter == 0 || buttonInfo.dasCounter == 16) && (buttonInfo.lButton || buttonInfo.rbutton))
@@ -112,6 +112,10 @@ public class TetrisEngine : MonoBehaviour
                     buttonInfo.dasCounter = 10;
                 }
                 // Calls for tetromino to be shifted, indicates direction by passing bool (if true, then left)
+                //if (!ShiftTetromino(buttonInfo.lButton))
+                //{
+                //    buttonInfo.dasCounter = 16;
+                //}
                 ShiftTetromino(buttonInfo.lButton);
             }
         }
@@ -120,13 +124,17 @@ public class TetrisEngine : MonoBehaviour
         buttonInfo.lrPreviousFrame = buttonInfo.lButton || buttonInfo.rbutton;
     }
 
-    void ShiftTetromino(bool goingLeft)
+    bool ShiftTetromino(bool goingLeft)
     {
         currentTetrominoPos[0] = currentTetrominoPos[0] + ((goingLeft) ? -1 : 1);
-        if (DetectHorizontalCollisions())
+
+        bool collided = DetectHorizontalCollisions();
+        if (collided)
         {
             currentTetrominoPos[0] = currentTetrominoPos[0] + ((goingLeft) ? 1 : -1);
         }
+
+        return !collided;
     }
 
     bool DetectHorizontalCollisions()
@@ -147,13 +155,13 @@ public class TetrisEngine : MonoBehaviour
     // Drops the tetromino by one gridcell if the necessary time has passed
     void DropTetromino()
     {
-        if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(level) / _FRAME_RATE)
+        bool softDroppingThisFrame = buttonInfo.dButton && Time.time >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(level)) / _FRAME_RATE;
+        if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(level) / _FRAME_RATE || softDroppingThisFrame)
         {
             previousDropTime = Time.time;
             currentTetrominoPos[1]--;
             if (DetectVerticalCollisions())
             {
-                Debug.Log("Hit the ground!");
                 currentTetrominoPos[1]++;
 
                 AddTetrominoToField();
@@ -336,5 +344,8 @@ public class TetrisEngine : MonoBehaviour
         public bool rbutton;
 
         public int dasCounter;
+
+        public bool dPreviousFrame;
+        public bool dButton;
     }
 }

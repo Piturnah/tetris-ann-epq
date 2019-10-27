@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 /*
@@ -12,6 +13,8 @@ public class EngineUI : MonoBehaviour
     TetrisEngine engine;
     public GameObject tileObj;
 
+    [SerializeField] Text dasText;
+
     private void Start()
     {
         // Obtain reference to the game engine
@@ -21,7 +24,7 @@ public class EngineUI : MonoBehaviour
     }
     private void Update()
     {
-        //UpdateTiles();
+        dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
     }
 
     void GenerateTilemap()
@@ -32,28 +35,6 @@ public class EngineUI : MonoBehaviour
             {
                 GameObject newTile = Instantiate(tileObj, new Vector2(x, y), Quaternion.identity);
                 newTile.transform.parent = transform;
-            }
-        }
-    }
-
-    void UpdateTiles()
-    {
-        // Destroy any existing tiles
-        foreach (Transform child in transform)
-        {
-            Destroy(child.gameObject);
-        }
-
-        // Instantiate a new tile if it is present in the engine's field array
-        for (int x = 0; x < engine.field.Length; x++)
-        {
-            for (int y = 0; y < engine.field[0].Length; y++)
-            {
-                if (engine.viewField[x][y] == 1)
-                {
-                    GameObject newTile = Instantiate(tileObj, new Vector2(x, y), Quaternion.identity);
-                    newTile.transform.parent = transform;
-                }
             }
         }
     }
