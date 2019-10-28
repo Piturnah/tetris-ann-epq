@@ -34,12 +34,16 @@ public class HumanIO : MonoBehaviour
 
     void DetectRotationIO()
     {
+        engine.buttonInfo.aButton = engine.buttonInfo.bButton = false;
+
         if (Input.GetKeyDown(KeyCode.Z))
         {
             engine.RotateTetromino(-1);
+            engine.buttonInfo.aButton = true;
         } else if (Input.GetKeyDown(KeyCode.X))
         {
             engine.RotateTetromino(1);
+            engine.buttonInfo.bButton = true;
         }
     }
 

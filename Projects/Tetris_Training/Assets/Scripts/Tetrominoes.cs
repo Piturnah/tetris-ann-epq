@@ -182,6 +182,29 @@
          {1, 1, 0, 0 },
          {0, 1, 1, 0 } }
     };
+
+    public static int[,,] GetTetrominoFromIndex(int index)
+    {
+        switch (index)
+        {
+            case 1:
+                return iTetromino;
+            case 2:
+                return oTetromino;
+            case 3:
+                return jTetromino;
+            case 4:
+                return lTetromino;
+            case 5:
+                return sTetromino;
+            case 6:
+                return tTetromino;
+            case 7:
+                return zTetromino;
+            default:
+                return iTetromino;
+        }
+    }
 }
 
 public static class DropFrameDelays
