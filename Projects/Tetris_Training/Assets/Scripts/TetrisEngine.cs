@@ -27,15 +27,20 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int level = 7;
+    int startLevel = 0;
+    [HideInInspector]public int level;
     float previousDropTime;
     float previousDASUpdate;
 
     public event Action updateField;
     public event Action tetrominoSpawned;
+    public event Action newLevel;
 
     private void Start()
     {
+        level = startLevel;
+        newLevel?.Invoke();
+
         // Initialise nested arrays of field
         for (int i = 0; i < field.Length; i++)
         {
@@ -64,7 +69,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x, y] == 1 && x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
+                if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
                 {
                     viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
@@ -146,7 +151,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x, y] == 1) && (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] == 1))
+                if ((currentTetrominoState[x, y] != 0) && (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0))
                 {
                     return true;
                 }
@@ -180,7 +185,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x,y] == 1) && (currentTetrominoPos[1] + y < 0 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] == 1))
+                if ((currentTetrominoState[x,y] != 0) && (currentTetrominoPos[1] + y < 0 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0))
                 {
                     return true;
                 }
@@ -196,7 +201,7 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x, y] == 1 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
+                if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
                 {
                     field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
@@ -282,10 +287,7 @@ public class TetrisEngine : MonoBehaviour
         currentTetrominoPos[0] = 3;
         currentTetrominoPos[1] = 18;
 
-        if (tetrominoSpawned != null)
-        {
-            tetrominoSpawned();
-        }
+        tetrominoSpawned?.Invoke();
     }
 
     // Takes a 2d "slice" from the array containing rotation info for a specific tetromino, i.e one rotation state

@@ -18,7 +18,7 @@ public class EngineUI : MonoBehaviour
     [SerializeField] Image nesController;
     [SerializeField] GameObject devTools;
 
-    [SerializeField] Transform nextTetrominoHolder;
+    [SerializeField] public Transform nextTetrominoHolder;
 
     Color unselectedCol;
 
@@ -102,12 +102,13 @@ public class EngineUI : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (engine.Slicer3D(tetrominoPool, 0)[x,y] == 1)
+                if (engine.Slicer3D(tetrominoPool, 0)[x,y] != 0)
                 {
                     Vector2 spawnPos = new Vector2(nextTetrominoHolder.position.x -2 + x, nextTetrominoHolder.position.y - 1 + y);
                     GameObject newTile = Instantiate(tileObj, spawnPos, Quaternion.identity);
-                    newTile.GetComponent<TileRenderer>().enabled = false;
+                    newTile.GetComponent<TileRenderer>().isNext = true;
                     newTile.transform.parent = nextTetrominoHolder;
+                    newTile.GetComponent<TileRenderer>().engine = engine;
                 }
             }
         }
