@@ -17,8 +17,13 @@ public class EngineUI : MonoBehaviour
     [SerializeField] Image dasImage;
     [SerializeField] Image nesController;
     [SerializeField] GameObject devTools;
+    [SerializeField] Text frameCounter;
+    [SerializeField] Image areEnabled;
+    [SerializeField] Text lockPosTxt;
 
     [SerializeField] public Transform nextTetrominoHolder;
+
+    [HideInInspector] public int yLock;
 
     Color unselectedCol;
 
@@ -36,10 +41,16 @@ public class EngineUI : MonoBehaviour
     }
     private void Update()
     {
-        dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
-        dasImage.fillAmount = engine.buttonInfo.dasCounter / 16f;
+        if (devTools.activeInHierarchy)
+        {
+            dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
+            dasImage.fillAmount = engine.buttonInfo.dasCounter / 16f;
+            frameCounter.text = "FRAME: " + engine.frameCounter.ToString("00 000 000 000");
+            areEnabled.enabled = engine.are;
+            lockPosTxt.text = "LOCK: " + yLock.ToString("00");
 
-        UpdateControllerDisplay();
+            UpdateControllerDisplay();
+        }
 
         if (Input.GetKeyUp(KeyCode.D))
         {

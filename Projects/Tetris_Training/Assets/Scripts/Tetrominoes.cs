@@ -182,6 +182,11 @@
          {3, 3, 0, 0 },
          {0, 3, 3, 0 } }
     };
+    public static int[,] zeros = 
+        {{0, 0, 0, 0 },
+         {0, 0, 0, 0 },
+         {0, 0, 0, 0 },
+         {0, 0, 0, 0 } };
 
     public static int[,,] GetTetrominoFromIndex(int index)
     {
@@ -203,6 +208,29 @@
                 return zTetromino;
             default:
                 return iTetromino;
+        }
+    }
+}
+
+public static class EntryFrameDelays
+{
+    // Returns the amount of frames to wait depending on the row the tetromino was locked on
+    public static int GetFrameDelay(int lockRow)
+    {
+        switch (lockRow)
+        {
+            case 0: case 1:
+                return 10;
+            case 2: case 3: case 4: case 5:
+                return 12;
+            case 6: case 7: case 8: case 9:
+                return 14;
+            case 10: case 11: case 12: case 13:
+                return 16;
+            case 14: case 15: case 16: case 17:
+                return 18;
+            default:
+                return 20;
         }
     }
 }

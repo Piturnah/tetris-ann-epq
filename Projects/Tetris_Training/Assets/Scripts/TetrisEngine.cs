@@ -27,7 +27,7 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int startLevel = 0;
+    int startLevel = 7;
     [HideInInspector]public int level;
     float previousDropTime;
     float previousDASUpdate;
@@ -35,6 +35,9 @@ public class TetrisEngine : MonoBehaviour
     public event Action updateField;
     public event Action tetrominoSpawned;
     public event Action newLevel;
+
+    [HideInInspector]public bool are;
+    [HideInInspector]public int frameCounter;
 
     private void Start()
     {
@@ -56,9 +59,17 @@ public class TetrisEngine : MonoBehaviour
     private void Update()
     {
         UpdateViewField();
-        DropTetromino();
 
-        DAS();
+        // Don't do these during entry delay
+        if (!are)
+        {
+            DropTetromino();
+            DAS();
+        }
+        if (Time.time * _FRAME_RATE > frameCounter + 1)
+        {
+            frameCounter++;
+        }
     }
 
     // Update the view field
@@ -99,9 +110,9 @@ public class TetrisEngine : MonoBehaviour
     //Calculate DAS and do horizontal shifting
     void DAS()
     {
-        if (Time.time >= previousDASUpdate + 1 / _FRAME_RATE)
+        if (frameCounter >= previousDASUpdate + 1)
         {
-            previousDASUpdate = Time.time;
+            previousDASUpdate = frameCounter;
 
             //Determine whether to reset DAS counter or to increment DAS counter
             if ((buttonInfo.rbutton == true || buttonInfo.lButton == true) && buttonInfo.lrPreviousFrame == false)
@@ -172,8 +183,11 @@ public class TetrisEngine : MonoBehaviour
             {
                 currentTetrominoPos[1]++;
 
-                AddTetrominoToField();
-                CheckForLines();
+                int minYPos = AddTetrominoToField(); // returns minimum y pos of tetromino after adding it to field
+                if (!CheckForLines(minYPos)) //TODO: Fix this bs
+                {
+                    StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos)));
+                }
             }
         }
     }
@@ -195,36 +209,65 @@ public class TetrisEngine : MonoBehaviour
     }
 
     // Adds the tetromino to the field and instantiates a new one
-    void AddTetrominoToField()
+    int AddTetrominoToField()
     {
+        int minYPos = 0;
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
             {
                 if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
                 {
+                    minYPos = Mathf.Min(minYPos, y);
                     field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
                 }
             }
         }
+        currentTetrominoState = Tetrominoes.zeros;
+        if (GetComponent<EngineUI>() != null)
+        {
+            GetComponent<EngineUI>().yLock = minYPos + currentTetrominoPos[1];
+        }
+        return minYPos;
+    }
+    
+    // Entry delay then spawns new tetromino
+    IEnumerator ARE(int waitFrames)
+    {
+        are = true;
+        yield return new WaitForSeconds(waitFrames / _FRAME_RATE);
         SpawnTetromino(nextTetrominoIndex);
+        are = false;
     }
 
     // Called when a tetromino has landed. Iterates over each row of field and checks if there are any lines.
-    void CheckForLines()
+    bool CheckForLines(int minYPos)
     {
+        bool lineFound = false;
         for (int y = 20; y >= 0; y--)
         {
             if (CheckRow(y))
             {
-                for (int x = 0; x < 10; x++)
-                {
-                    field[x][y] = 0;
-                }
-                FallAboveRows(y);
+                lineFound = true;
+                StartCoroutine(LineClearAnimation(y, minYPos));
             }
         }
+        return lineFound;
     }
+    IEnumerator LineClearAnimation(int y, int minYPos)
+    {
+        are = true;
+        for (int i = 0; i < 5; i++)
+        {
+            yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE); // Number of seconds before frame counter % 4 = 0
+            field[i + 5][y] = 0;
+            field[4 - i][y] = 0;
+        }
+        are = false;
+        FallAboveRows(y);
+        StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos)));
+    }
+
     // Called by CheckForLines, returns true when a row of field (y) has no empty spaces.
     bool CheckRow(int y)
     {
