@@ -10,6 +10,7 @@ using System.Linq;
  * field only stores values for tetrominoes that have already landed, so for visualisation the method UpdateViewField can be called to
  * return 2D array viewField which is a combination of field and currentTetrominoState based on the tetromino's position.
  */
+ [RequireComponent(typeof(ScoreController))]
 public class TetrisEngine : MonoBehaviour
 {
     public ButtonInfo buttonInfo = new ButtonInfo();
@@ -35,13 +36,16 @@ public class TetrisEngine : MonoBehaviour
     public event Action updateField;
     public event Action tetrominoSpawned;
     public event Action newLevel;
+    int softDropCounter;
 
     [HideInInspector]public bool are;
     [HideInInspector]public int frameCounter;
+    [HideInInspector]public ScoreController score;
 
     private void Start()
     {
-        level = startLevel;
+        score = GetComponent<ScoreController>();
+        score.level = startLevel;
         newLevel?.Invoke();
 
         // Initialise nested arrays of field
@@ -70,6 +74,7 @@ public class TetrisEngine : MonoBehaviour
         {
             frameCounter++;
         }
+        buttonInfo.dPreviousFrame = buttonInfo.dButton;
     }
 
     // Update the view field
@@ -174,13 +179,29 @@ public class TetrisEngine : MonoBehaviour
     // Drops the tetromino by one gridcell if the necessary time has passed
     void DropTetromino()
     {
-        bool softDroppingThisFrame = buttonInfo.dButton && Time.time >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(level)) / _FRAME_RATE;
-        if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(level) / _FRAME_RATE || softDroppingThisFrame)
+        bool softDroppingThisFrame = buttonInfo.dButton && Time.time >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level)) / _FRAME_RATE;
+        if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) / _FRAME_RATE || softDroppingThisFrame)
         {
+            if (softDroppingThisFrame)
+            {
+                if (buttonInfo.softDropCounter == 16)
+                {
+                    buttonInfo.softDropCounter = 10;
+                }
+                if (buttonInfo.dPreviousFrame)
+                {
+                    buttonInfo.softDropCounter++;
+                } else
+                {
+                    buttonInfo.softDropCounter = 0;
+                }
+            }
+
             previousDropTime = Time.time;
             currentTetrominoPos[1]--;
             if (DetectVerticalCollisions())
             {
+                score.SoftDropScore(buttonInfo.softDropCounter);
                 currentTetrominoPos[1]++;
 
                 int minYPos = AddTetrominoToField(); // returns minimum y pos of tetromino after adding it to field
@@ -256,6 +277,7 @@ public class TetrisEngine : MonoBehaviour
         if (lineFound)
         {
             StartCoroutine(LineClearAnimation(linesFound, minYPos));
+            score.RowClearScore(linesFound);
         }
         return lineFound;
     }
@@ -344,6 +366,7 @@ public class TetrisEngine : MonoBehaviour
     // Spawn a new tetromino at the top of the screen
     void SpawnTetromino(int tetrominoIndex)
     {
+        buttonInfo.softDropCounter = 0;
         nextTetrominoIndex = UnityEngine.Random.Range(1, 8);
 
         tetrominoPool = Tetrominoes.GetTetrominoFromIndex(tetrominoIndex);
@@ -397,6 +420,7 @@ public class TetrisEngine : MonoBehaviour
         public bool rbutton;
 
         public int dasCounter;
+        public int softDropCounter;
 
         public bool dPreviousFrame;
         public bool dButton;

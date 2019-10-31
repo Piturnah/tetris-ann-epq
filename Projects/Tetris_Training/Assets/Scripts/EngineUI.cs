@@ -20,6 +20,7 @@ public class EngineUI : MonoBehaviour
     [SerializeField] Text frameCounter;
     [SerializeField] Image areEnabled;
     [SerializeField] Text lockPosTxt;
+    Text scoreText;
 
     [SerializeField] public Transform nextTetrominoHolder;
 
@@ -34,6 +35,7 @@ public class EngineUI : MonoBehaviour
         // Obtain reference to the game engine
         engine = GetComponent<TetrisEngine>();
 
+        scoreText = GameObject.Find("Score").GetComponent<Text>();
         GenerateTilemap();
 
         engine.tetrominoSpawned += UpdateTetrominoHolder;
@@ -58,6 +60,8 @@ public class EngineUI : MonoBehaviour
         {
             devTools.SetActive(!devTools.activeInHierarchy);
         }
+
+        scoreText.text = "Score: " + engine.score.score.ToString("000000");
     }
 
     void UpdateControllerDisplay()

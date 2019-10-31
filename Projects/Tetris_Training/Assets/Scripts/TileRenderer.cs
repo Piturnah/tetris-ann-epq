@@ -27,13 +27,13 @@ public class TileRenderer : MonoBehaviour
             switch (engine.nextTetrominoIndex)
             {
                 case 1: case 2: case 6:
-                    appearance.material.color = palettes.palette[0][engine.level % palettes.palette[0].Length];
+                    appearance.material.color = palettes.palette[0][engine.score.level % palettes.palette[0].Length];
                     break;
                 case 3: case 5:
-                    appearance.material.color = palettes.palette[1][engine.level % palettes.palette[0].Length];
+                    appearance.material.color = palettes.palette[1][engine.score.level % palettes.palette[0].Length];
                     break;
                 default:
-                    appearance.material.color = palettes.palette[2][engine.level % palettes.palette[0].Length];
+                    appearance.material.color = palettes.palette[2][engine.score.level % palettes.palette[0].Length];
                     break;
             }
         }
@@ -49,7 +49,7 @@ public class TileRenderer : MonoBehaviour
     {
         if (appearance.enabled)
         {
-            appearance.material.color = palettes.palette[engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] - 1][engine.level % palettes.palette[0].Length];
+            appearance.material.color = palettes.palette[engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] - 1][engine.score.level % palettes.palette[0].Length];
         }
     }
 }
