@@ -27,7 +27,7 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int startLevel = 7;
+    int startLevel = 5;
     [HideInInspector]public int level;
     float previousDropTime;
     float previousDASUpdate;
@@ -186,7 +186,7 @@ public class TetrisEngine : MonoBehaviour
                 int minYPos = AddTetrominoToField(); // returns minimum y pos of tetromino after adding it to field
                 if (!CheckForLines(minYPos)) //TODO: Fix this bs
                 {
-                    StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos)));
+                    StartCoroutine(LineClearAnimation(new List<int>(), minYPos));
                 }
             }
         }
@@ -208,10 +208,10 @@ public class TetrisEngine : MonoBehaviour
         return false;
     }
 
-    // Adds the tetromino to the field and instantiates a new one
+    // Adds the tetromino to the field and instantiates a new one, returns minimum local y position
     int AddTetrominoToField()
     {
-        int minYPos = 0;
+        int minYPos = int.MaxValue;
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
@@ -244,28 +244,50 @@ public class TetrisEngine : MonoBehaviour
     bool CheckForLines(int minYPos)
     {
         bool lineFound = false;
+        List<int> linesFound = new List<int>();
         for (int y = 20; y >= 0; y--)
         {
             if (CheckRow(y))
             {
                 lineFound = true;
-                StartCoroutine(LineClearAnimation(y, minYPos));
+                linesFound.Add(y);
             }
+        }
+        if (lineFound)
+        {
+            StartCoroutine(LineClearAnimation(linesFound, minYPos));
         }
         return lineFound;
     }
-    IEnumerator LineClearAnimation(int y, int minYPos)
+    IEnumerator LineClearAnimation(List<int> yRows, int minYPos)
     {
+        for (int i = 0; i < yRows.Count(); i++)
+        {
+            StartCoroutine(ClearLine(yRows[i], i, minYPos));
+        }
+        if (!yRows.Any())
+        {
+            StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos))); // tetromino spawned in ARE
+        }
+        yield return null;
+    }
+
+    IEnumerator ClearLine(int y, int j, int minYPos)
+    {
+        float timeThen = Time.time;
         are = true;
         for (int i = 0; i < 5; i++)
         {
-            yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE); // Number of seconds before frame counter % 4 = 0
+            yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE); // Time in seconds before frame counter % 4 = 0
             field[i + 5][y] = 0;
             field[4 - i][y] = 0;
         }
         are = false;
         FallAboveRows(y);
-        StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos)));
+        if (j == 0) // first iteration of clearline
+        {
+            StartCoroutine(ARE(EntryFrameDelays.GetFrameDelay(currentTetrominoPos[1] + minYPos))); // tetromino spawned in ARE
+        }
     }
 
     // Called by CheckForLines, returns true when a row of field (y) has no empty spaces.

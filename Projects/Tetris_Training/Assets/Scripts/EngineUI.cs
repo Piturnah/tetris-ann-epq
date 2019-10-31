@@ -25,6 +25,8 @@ public class EngineUI : MonoBehaviour
 
     [HideInInspector] public int yLock;
 
+    int previousUpdateFrame;
+
     Color unselectedCol;
 
     private void Start()
