@@ -11,8 +11,6 @@ public class HumanIO : MonoBehaviour
 {
     TetrisEngine engine;
 
-    [SerializeField] GameObject tileObj;
-
     private void Start()
     {
         // Obtain reference to the game engine

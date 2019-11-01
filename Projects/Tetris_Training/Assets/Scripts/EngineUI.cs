@@ -11,18 +11,7 @@ using UnityEngine.UI;
 public class EngineUI : MonoBehaviour
 {
     TetrisEngine engine;
-    public GameObject tileObj;
-
-    [SerializeField] Text dasText;
-    [SerializeField] Image dasImage;
-    [SerializeField] Image nesController;
-    [SerializeField] GameObject devTools;
-    [SerializeField] Text frameCounter;
-    [SerializeField] Image areEnabled;
-    [SerializeField] Text lockPosTxt;
-    Text scoreText;
-
-    [SerializeField] public Transform nextTetrominoHolder;
+    Objects obj;
 
     [HideInInspector] public int yLock;
 
@@ -34,39 +23,44 @@ public class EngineUI : MonoBehaviour
     {
         // Obtain reference to the game engine
         engine = GetComponent<TetrisEngine>();
+        obj = FindObjectOfType<Objects>().GetComponent<Objects>();
 
-        scoreText = GameObject.Find("Score").GetComponent<Text>();
+        obj.scoreText = GameObject.Find("Score").GetComponent<Text>();
         GenerateTilemap();
 
         engine.tetrominoSpawned += UpdateTetrominoHolder;
         UpdateTetrominoHolder();
 
-        unselectedCol = nesController.transform.Find("MID").GetComponent<Image>().color;
+        unselectedCol = obj.nesController.transform.Find("MID").GetComponent<Image>().color;
     }
     private void Update()
     {
-        if (devTools.activeInHierarchy)
+        if (obj.devTools.activeInHierarchy)
         {
-            dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
-            dasImage.fillAmount = engine.buttonInfo.dasCounter / 16f;
-            frameCounter.text = "FRAME: " + engine.frameCounter.ToString("00 000 000 000");
-            areEnabled.enabled = engine.are;
-            lockPosTxt.text = "LOCK: " + yLock.ToString("00");
+            obj.dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
+            obj.dasImage.fillAmount = engine.buttonInfo.dasCounter / 16f;
+            obj.frameCounter.text = "FRAME: " + engine.frameCounter.ToString("00 000 000 000");
+            obj.areEnabled.enabled = engine.are;
+            obj.lockPosTxt.text = "LOCK: " + yLock.ToString("00");
+            obj.sdText.text = "SOFT: " + engine.buttonInfo.softDropCounter.ToString("00");
+            obj.sdImage.fillAmount = engine.buttonInfo.softDropCounter / 16f;
 
             UpdateControllerDisplay();
         }
 
         if (Input.GetKeyUp(KeyCode.D))
         {
-            devTools.SetActive(!devTools.activeInHierarchy);
+            obj.devTools.SetActive(!obj.devTools.activeInHierarchy);
         }
 
-        scoreText.text = "Score: " + engine.score.score.ToString("000000");
+        obj.scoreText.text = "Score: " + engine.score.score.ToString("000000");
+        obj.levelText.text = "Level: " + engine.score.level.ToString("00");
+        obj.linesText.text = "Lines: " + engine.score.lines.ToString("00");
     }
 
     void UpdateControllerDisplay()
     {
-        foreach (Transform button in nesController.transform)
+        foreach (Transform button in obj.nesController.transform)
         {
             button.GetComponent<Image>().color = unselectedCol;
         }
@@ -74,23 +68,23 @@ public class EngineUI : MonoBehaviour
         Color highlightedColour = new Color(227 / 255f, 186 / 255f, 50 / 255f);
         if (engine.buttonInfo.lButton)
         {
-            nesController.transform.Find("LEFT").GetComponent<Image>().color = highlightedColour;
+            obj.nesController.transform.Find("LEFT").GetComponent<Image>().color = highlightedColour;
         }
         if (engine.buttonInfo.rbutton)
         {
-            nesController.transform.Find("RIGHT").GetComponent<Image>().color = highlightedColour;
+            obj.nesController.transform.Find("RIGHT").GetComponent<Image>().color = highlightedColour;
         }
         if (engine.buttonInfo.dButton)
         {
-            nesController.transform.Find("DOWN").GetComponent<Image>().color = highlightedColour;
+            obj.nesController.transform.Find("DOWN").GetComponent<Image>().color = highlightedColour;
         }
         if (engine.buttonInfo.aButton)
         {
-            nesController.transform.Find("A").GetComponent<Image>().color = highlightedColour;
+            obj.nesController.transform.Find("A").GetComponent<Image>().color = highlightedColour;
         }
         if (engine.buttonInfo.bButton)
         {
-            nesController.transform.Find("B").GetComponent<Image>().color = highlightedColour;
+            obj.nesController.transform.Find("B").GetComponent<Image>().color = highlightedColour;
         }
     }
 
@@ -100,7 +94,7 @@ public class EngineUI : MonoBehaviour
         {
             for (int y  = 0; y < 20; y++)
             {
-                GameObject newTile = Instantiate(tileObj, new Vector2(x, y), Quaternion.identity);
+                GameObject newTile = Instantiate(obj.tileObj, new Vector2(x, y), Quaternion.identity);
                 newTile.transform.parent = transform;
             }
         }
@@ -108,7 +102,7 @@ public class EngineUI : MonoBehaviour
 
     void UpdateTetrominoHolder()
     {
-        foreach (Transform child in nextTetrominoHolder)
+        foreach (Transform child in obj.nextTetrominoHolder)
         {
             Destroy(child.gameObject);
         }
@@ -121,10 +115,10 @@ public class EngineUI : MonoBehaviour
             {
                 if (engine.Slicer3D(tetrominoPool, 0)[x,y] != 0)
                 {
-                    Vector2 spawnPos = new Vector2(nextTetrominoHolder.position.x -2 + x, nextTetrominoHolder.position.y - 1 + y);
-                    GameObject newTile = Instantiate(tileObj, spawnPos, Quaternion.identity);
+                    Vector2 spawnPos = new Vector2(obj.nextTetrominoHolder.position.x -2 + x, obj.nextTetrominoHolder.position.y - 1 + y);
+                    GameObject newTile = Instantiate(obj.tileObj, spawnPos, Quaternion.identity);
                     newTile.GetComponent<TileRenderer>().isNext = true;
-                    newTile.transform.parent = nextTetrominoHolder;
+                    newTile.transform.parent = obj.nextTetrominoHolder;
                     newTile.GetComponent<TileRenderer>().engine = engine;
                 }
             }

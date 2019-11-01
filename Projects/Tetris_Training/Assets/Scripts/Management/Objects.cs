@@ -1,0 +1,27 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/*
+ * Store of commonly referenced gameobjects
+ */
+public class Objects : MonoBehaviour
+{
+    public GameObject tileObj;
+
+    public Text dasText;
+    public Image dasImage;
+    public Image nesController;
+    public GameObject devTools;
+    public Text frameCounter;
+    public Image areEnabled;
+    public Text lockPosTxt;
+    public Text scoreText;
+    public Text sdText;
+    public Image sdImage;
+    public Text levelText;
+    public Text linesText;
+
+    public Transform nextTetrominoHolder;
+}

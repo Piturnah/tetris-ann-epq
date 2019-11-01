@@ -28,8 +28,8 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    int startLevel = 5;
-    [HideInInspector]public int level;
+    [HideInInspector] public int startLevel = 0;
+    [HideInInspector] public int level;
     float previousDropTime;
     float previousDASUpdate;
 
@@ -201,7 +201,10 @@ public class TetrisEngine : MonoBehaviour
             currentTetrominoPos[1]--;
             if (DetectVerticalCollisions())
             {
-                score.SoftDropScore(buttonInfo.softDropCounter);
+                if (softDroppingThisFrame)
+                {
+                    score.SoftDropScore(buttonInfo.softDropCounter);
+                }
                 currentTetrominoPos[1]++;
 
                 int minYPos = AddTetrominoToField(); // returns minimum y pos of tetromino after adding it to field
