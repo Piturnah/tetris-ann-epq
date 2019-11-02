@@ -35,7 +35,7 @@ public class TetrisEngine : MonoBehaviour
 
     public event Action updateField;
     public event Action tetrominoSpawned;
-    public event Action newLevel;
+    public static event Action<int> death;
     int softDropCounter;
 
     [HideInInspector]public bool are;
@@ -46,7 +46,6 @@ public class TetrisEngine : MonoBehaviour
     {
         score = GetComponent<ScoreController>();
         score.level = startLevel;
-        newLevel?.Invoke();
 
         // Initialise nested arrays of field
         for (int i = 0; i < field.Length; i++)
@@ -211,6 +210,10 @@ public class TetrisEngine : MonoBehaviour
                 if (!CheckForLines(minYPos)) //TODO: Fix this bs
                 {
                     StartCoroutine(LineClearAnimation(new List<int>(), minYPos));
+                    if (minYPos + currentTetrominoPos[1] >= 18)
+                    {
+                        death?.Invoke(score.score); // this engine dies
+                    }
                 }
             }
         }

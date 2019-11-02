@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 
 /*
@@ -32,6 +33,7 @@ public class EngineUI : MonoBehaviour
         UpdateTetrominoHolder();
 
         unselectedCol = obj.nesController.transform.Find("MID").GetComponent<Image>().color;
+        obj.humanHIText.text = "Human HI: " + Manager.humanHiScoreVal.ToString("000000");
     }
     private void Update()
     {
@@ -39,7 +41,8 @@ public class EngineUI : MonoBehaviour
         {
             obj.dasText.text = "DAS: " + engine.buttonInfo.dasCounter.ToString("00");
             obj.dasImage.fillAmount = engine.buttonInfo.dasCounter / 16f;
-            obj.frameCounter.text = "FRAME: " + engine.frameCounter.ToString("00 000 000 000");
+            string hexString = engine.frameCounter.ToString("x8");
+            obj.frameCounter.text = "FRAME: 0x " + string.Format("{0} {1}", hexString.Substring(0, 4), hexString.Substring(4, 4));
             obj.areEnabled.enabled = engine.are;
             obj.lockPosTxt.text = "LOCK: " + yLock.ToString("00");
             obj.sdText.text = "SOFT: " + engine.buttonInfo.softDropCounter.ToString("00");

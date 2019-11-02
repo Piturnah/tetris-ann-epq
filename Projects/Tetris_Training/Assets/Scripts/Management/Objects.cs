@@ -22,6 +22,7 @@ public class Objects : MonoBehaviour
     public Image sdImage;
     public Text levelText;
     public Text linesText;
+    public Text humanHIText;
 
     public Transform nextTetrominoHolder;
 }
