@@ -8,15 +8,13 @@ I am working on this project for my Extended Project Qualification (EPQ) - which
 If people want to read the dissertation, I will release it publically after it has been graded!
 
 ## Getting Started
-If you'd like to run this yourself, currently the only way is to install the [Unity Engine](https://unity.com/) and clone the repo to wherever you'd like (for example, your directory for Unity projects). From there, you should be able to open and run the project with ease.
+If you just want to have a look at the program, it is available at [my website](https://piturnah.xyz/tetrisepq/program.html). However, it should be noted that this build is not the best representation of the project.
 
-Example: (yes, I just wanted an excuse to quote code)
+Alternatively, you can install the [Unity Engine](https://unity.com/) and clone the repo to wherever you'd like (for example, your directory for Unity projects). From there, you should be able to open and run the project with ease.
 
 ```
 git clone https://github.com/Piturnah/tetris-ann-epq.git
 ```
-
-In the future, builds will be released for Windows.
 
 ## Built with
 
