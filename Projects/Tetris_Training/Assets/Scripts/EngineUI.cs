@@ -13,12 +13,15 @@ public class EngineUI : MonoBehaviour
 {
     TetrisEngine engine;
     Objects obj;
+    const float _FRAME_RATE = 60.098813897441f;
 
     [HideInInspector] public int yLock;
 
     int previousUpdateFrame;
 
     Color unselectedCol;
+    Color bgMain = new Color(0.1176471f, 0.1254902f, 0.1333333f);
+    Color aaaah = new Color(055f, 055f, 055f);
 
     private void Start()
     {
@@ -29,6 +32,8 @@ public class EngineUI : MonoBehaviour
         obj.scoreText = GameObject.Find("Score").GetComponent<Text>();
         GenerateTilemap();
 
+        TetrisEngine.death += OnDeath;
+        engine.nextAnimFrame += Flash;
         engine.tetrominoSpawned += UpdateTetrominoHolder;
         UpdateTetrominoHolder();
 
@@ -126,5 +131,24 @@ public class EngineUI : MonoBehaviour
                 }
             }
         }
+    }
+
+    void Flash()
+    {
+        StartCoroutine(SaviorOfTheUniverse());
+    }
+
+    IEnumerator SaviorOfTheUniverse()
+    {
+        Camera.main.backgroundColor = aaaah;
+        yield return new WaitForSeconds(1 / _FRAME_RATE);
+        Camera.main.backgroundColor = bgMain;
+    }
+
+    void OnDeath(int score, GameObject ignore)
+    {
+        obj = FindObjectOfType<Objects>().GetComponent<Objects>(); // don't know why I have to do this again.
+        obj.deathMenu.transform.Find("Score").GetComponent<Text>().text = "Score: " + score.ToString("000000");
+        obj.deathMenu.SetActive(true);
     }
 }

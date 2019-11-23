@@ -7,6 +7,7 @@ using System.IO;
 
 public class Manager : MonoBehaviour
 {
+    static GameObject manager = null;
     [HideInInspector] public int startLevel;
     public GameObject humanIO;
     public static int gameMode;
@@ -19,26 +20,45 @@ public class Manager : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    private void Awake()
+    {
+        if (manager != null && manager != gameObject)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            manager = gameObject;
+        }
+    }
+
     private void Start()
     {
         savePath = Application.persistentDataPath;
         DontDestroyOnLoad(gameObject);
-        SceneManager.sceneLoaded += OnHumanSceneLoaded;
+        SceneManager.sceneLoaded += OnSceneLoaded;
         TetrisEngine.death += OnDeath;
         humanHiScoreVal = GetHumanHiScore();
-        print(humanHiScoreVal);
 
     }
 
-    void OnHumanSceneLoaded(Scene scene, LoadSceneMode mode)
+    public void GoToMenu()
     {
-        gameMode = 0;
-        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
-        HumanIO newHuman = Instantiate(humanIO, Vector3.zero, Quaternion.identity).GetComponent<HumanIO>();
-        newHuman.GetComponent<TetrisEngine>().startLevel = startLevel;
+        SceneManager.LoadScene(0);
     }
 
-    void OnDeath(int score) // called when any tetris engine dies
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == "Main")
+        {
+            humanHiScoreVal = GetHumanHiScore();
+            gameMode = 0;
+            HumanIO newHuman = Instantiate(humanIO, Vector3.zero, Quaternion.identity).GetComponent<HumanIO>();
+            newHuman.GetComponent<TetrisEngine>().startLevel = startLevel;
+        }
+    }
+
+    void OnDeath(int score, GameObject engine) // called when any tetris engine dies
     {
         if (gameMode == 0) // human is playing
         {

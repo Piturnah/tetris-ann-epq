@@ -428,7 +428,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 200605837}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1715508347}
+        m_MethodName: MenuButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &200605837
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,6 +793,7 @@ MonoBehaviour:
   levelText: {fileID: 1788468428}
   linesText: {fileID: 1195591316}
   humanHIText: {fileID: 88513071}
+  deathMenu: {fileID: 1206910892}
   nextTetrominoHolder: {fileID: 607344931}
 --- !u!4 &375914546
 Transform:
@@ -1187,7 +1199,7 @@ GameObject:
   - component: {fileID: 898006221}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1791,7 +1803,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1206910893
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1900,7 +1912,7 @@ GameObject:
   - component: {fileID: 1249723627}
   - component: {fileID: 1249723626}
   m_Layer: 5
-  m_Name: Score (1)
+  m_Name: Score
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2369,8 +2381,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1715508346}
   - component: {fileID: 1715508345}
+  - component: {fileID: 1715508347}
   m_Layer: 0
-  m_Name: ColManager
+  m_Name: MainManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2402,6 +2415,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1715508347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715508344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4370642fed21d074da0e5ca16442f195, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1734283071
 GameObject:
   m_ObjectHideFlags: 0

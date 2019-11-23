@@ -35,12 +35,16 @@ public class TetrisEngine : MonoBehaviour
 
     public event Action updateField;
     public event Action tetrominoSpawned;
-    public static event Action<int> death;
+    public event Action nextAnimFrame;
+    public static event Action<int, GameObject> death;
     int softDropCounter;
 
     [HideInInspector]public bool are;
     [HideInInspector]public int frameCounter;
     [HideInInspector]public ScoreController score;
+
+    bool dead;
+    int count18; // counts row 18 blocks. if tetromino stops on 18th row twice, engine dies
 
     private void Start()
     {
@@ -93,7 +97,7 @@ public class TetrisEngine : MonoBehaviour
         // If the view field is different to last frame, call event updateField
         if (!JaggedsEqual(viewField, previousViewField))
         {
-            updateField();
+            updateField?.Invoke();
             previousViewField = CopyArray(viewField);
         }
     }
@@ -119,11 +123,11 @@ public class TetrisEngine : MonoBehaviour
             previousDASUpdate = frameCounter;
 
             //Determine whether to reset DAS counter or to increment DAS counter
-            if ((buttonInfo.rbutton == true || buttonInfo.lButton == true) && buttonInfo.lrPreviousFrame == false)
+            if ((buttonInfo.rbutton || buttonInfo.lButton) && !buttonInfo.lrPreviousFrame)
             {
                 buttonInfo.dasCounter = 0; // Resets counter to 0 if started inputting again after no input previous frame
             }
-            else if ((buttonInfo.rbutton == true || buttonInfo.lButton == true) && buttonInfo.lrPreviousFrame == true)
+            else if ((buttonInfo.rbutton || buttonInfo.lButton) && buttonInfo.lrPreviousFrame)
             {
                 buttonInfo.dasCounter = Mathf.Clamp(buttonInfo.dasCounter + 1, 0, 16); // Increments the counter if inputting current frame and previous frame
             }
@@ -138,7 +142,7 @@ public class TetrisEngine : MonoBehaviour
                 // Calls for tetromino to be shifted, indicates direction by passing bool (if true, then left)
                 if (!ShiftTetromino(buttonInfo.lButton))
                 {
-                    buttonInfo.dasCounter = 16;
+                    buttonInfo.dasCounter = (buttonInfo.dasCounter == 0) ? 16 : buttonInfo.dasCounter;
                 }
             }
         }
@@ -212,7 +216,13 @@ public class TetrisEngine : MonoBehaviour
                     StartCoroutine(LineClearAnimation(new List<int>(), minYPos));
                     if (minYPos + currentTetrominoPos[1] >= 18)
                     {
-                        death?.Invoke(score.score); // this engine dies
+                        count18++;
+                        if (count18 >= 2)
+                        {
+                            death?.Invoke(score.score, gameObject); // this engine dies
+                            dead = true;
+                            buttonInfo.Reset();
+                        }
                     }
                 }
             }
@@ -306,6 +316,10 @@ public class TetrisEngine : MonoBehaviour
         are = true;
         for (int i = 0; i < 5; i++)
         {
+            if (j == 3) // make screen flash if tetris (and if has EngineUI attached)
+            {
+                nextAnimFrame?.Invoke();
+            }
             yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE); // Time in seconds before frame counter % 4 = 0
             field[i + 5][y] = 0;
             field[4 - i][y] = 0;
@@ -372,16 +386,19 @@ public class TetrisEngine : MonoBehaviour
     // Spawn a new tetromino at the top of the screen
     void SpawnTetromino(int tetrominoIndex)
     {
-        buttonInfo.softDropCounter = 0;
-        nextTetrominoIndex = UnityEngine.Random.Range(1, 8);
+        if (!dead)
+        {
+            buttonInfo.softDropCounter = 0;
+            nextTetrominoIndex = UnityEngine.Random.Range(1, 8);
 
-        tetrominoPool = Tetrominoes.GetTetrominoFromIndex(tetrominoIndex);
-        currentTetrominoState = Slicer3D(tetrominoPool, 0);
-        rotationState = 0;
-        currentTetrominoPos[0] = 3;
-        currentTetrominoPos[1] = 18;
+            tetrominoPool = Tetrominoes.GetTetrominoFromIndex(tetrominoIndex);
+            currentTetrominoState = Slicer3D(tetrominoPool, 0);
+            rotationState = 0;
+            currentTetrominoPos[0] = 3;
+            currentTetrominoPos[1] = 18;
 
-        tetrominoSpawned?.Invoke();
+            tetrominoSpawned?.Invoke();
+        }
     }
 
     // Takes a 2d "slice" from the array containing rotation info for a specific tetromino, i.e one rotation state
@@ -433,5 +450,10 @@ public class TetrisEngine : MonoBehaviour
 
         public bool aButton;
         public bool bButton;
+
+        public void Reset()
+        {
+            lrPreviousFrame = lButton = rbutton = dPreviousFrame = dButton = aButton = bButton = false;
+        }
     }
 }
