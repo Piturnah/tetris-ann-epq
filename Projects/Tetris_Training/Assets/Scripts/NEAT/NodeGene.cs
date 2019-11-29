@@ -5,7 +5,7 @@ public class NodeGene
 {
     public enum TYPE
     {
-        INPUT,
+        SENSOR,
         HIDDEN,
         OUTPUT
     }
@@ -26,5 +26,10 @@ public class NodeGene
     public int getId()
     {
         return id;
+    }
+
+    public NodeGene CopyNode()
+    {
+        return new NodeGene(type, id);
     }
 }
