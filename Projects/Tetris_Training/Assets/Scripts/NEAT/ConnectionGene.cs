@@ -18,6 +18,11 @@ public class ConnectionGene
         this.innovation = innovation;
     }
 
+    public void SetWeight(float newWeight)
+    {
+        weight = newWeight;
+    }
+
     public void Disable()
     {
         expressed = false;
@@ -42,5 +47,10 @@ public class ConnectionGene
     public int getInnovation()
     {
         return innovation;
+    }
+
+    public ConnectionGene CopyConnection()
+    {
+        return new ConnectionGene(inNode, outNode, weight, expressed, innovation);
     }
 }
