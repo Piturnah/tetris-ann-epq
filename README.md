@@ -1,5 +1,8 @@
 # NEAT Machine learning - AI plays Tetris!
 
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
+[![DOI](https://zenodo.org/badge/214808126.svg)](https://zenodo.org/badge/latestdoi/214808126)
+
 ## This project is still in early development!!
 
 ## What is this for?
