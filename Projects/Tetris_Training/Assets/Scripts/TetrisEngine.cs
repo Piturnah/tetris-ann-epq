@@ -142,7 +142,7 @@ public class TetrisEngine : MonoBehaviour
                 // Calls for tetromino to be shifted, indicates direction by passing bool (if true, then left)
                 if (!ShiftTetromino(buttonInfo.lButton))
                 {
-                    buttonInfo.dasCounter = (buttonInfo.dasCounter == 0) ? 16 : buttonInfo.dasCounter;
+                    buttonInfo.dasCounter = 16;
                 }
             }
         }

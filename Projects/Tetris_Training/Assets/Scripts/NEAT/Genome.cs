@@ -63,7 +63,7 @@ public class Genome
         float weight = (float)rand.NextDouble() * 2f - 1f;
 
         if (node2.getType() == NodeGene.TYPE.SENSOR || node1.getType() == NodeGene.TYPE.OUTPUT)
-        {
+        { // swap genes if sensor is output
             NodeGene tempGene = node1.CopyNode();
             node1 = node2.CopyNode();
             node2 = tempGene.CopyNode();
@@ -104,7 +104,7 @@ public class Genome
     }
 
     public static Genome Crossover(Genome parent1, Genome parent2)
-    {
+    { // parent1 always more fit parent - no equal fitness parents
         Random rand = new Random();
         Genome offspring = new Genome();
 
@@ -118,8 +118,7 @@ public class Genome
             if (parent2.GetConnections().ContainsKey(parent1Connection.getInnovation()))
             {
                 offspring.AddConnectionGene((rand.NextDouble() > 0.5) ? parent1Connection.CopyConnection() : parent2.GetConnections()[parent1Connection.getInnovation()].CopyConnection());
-            } else
-            {
+            } else {
                 offspring.AddConnectionGene(parent1Connection.CopyConnection());
             }
         }
@@ -127,7 +126,8 @@ public class Genome
         return offspring;
     }
 
-    public static float CompatibilityDist(Genome genome1, Genome genome2, int c1, int c2, int c3)
+    // calculates compatibility between two genomes
+    public static float CompatibilityDist(Genome genome1, Genome genome2, float c1, float c2, float c3)
     {
         float[] geneInfo = GetGeneInfo(genome1, genome2); // matching, weight diff, excess, disjoint
 
