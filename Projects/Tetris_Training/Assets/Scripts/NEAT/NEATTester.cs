@@ -43,7 +43,7 @@ public class NEATTester : MonoBehaviour
         secondParent.AddConnectionGene(new ConnectionGene(2, 5, 1f, true, 4));
         secondParent.AddConnectionGene(new ConnectionGene(5, 4, 1f, false, 5));
 
-        secondParent.AddConnectionGene(new ConnectionGene(5, 6, 1f, true, 6));
+        secondParent.AddConnectionGene(new ConnectionGene(5, 6, -1f, true, 6));
         secondParent.AddConnectionGene(new ConnectionGene(6, 4, 1f, true, 7));
         secondParent.AddConnectionGene(new ConnectionGene(3, 5, 1f, true, 9));
         secondParent.AddConnectionGene(new ConnectionGene(1, 6, 1f, true, 10));

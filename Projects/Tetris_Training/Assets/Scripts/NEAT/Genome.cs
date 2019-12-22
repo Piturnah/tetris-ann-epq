@@ -20,6 +20,12 @@ public class Genome
         nodes = new Dictionary<int, NodeGene>();
     }
 
+    //copier
+    public Genome(Genome toCopy) {
+        nodes = new Dictionary<int, NodeGene>(toCopy.GetNodes());
+        connections = new Dictionary<int, ConnectionGene>(toCopy.GetConnections());
+    }
+
     public void AddConnectionGene(ConnectionGene gene)
     {
         connections.Add(gene.getInnovation(), gene);

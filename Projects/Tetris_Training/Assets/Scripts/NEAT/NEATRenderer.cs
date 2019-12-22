@@ -65,21 +65,23 @@ public class NEATRenderer : MonoBehaviour
             drawnNodes.Add(i + sensors.Count + outputs.Count + 1, newNode);
         }
 
-        // draw direct connections
+        // draw connections
         foreach (ConnectionGene connection in genome.GetConnections().Values) {
 
-            if (true) {
-                if (true) {
-                    if (connection.getExpressed()) {
-                        GameObject newConnection = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                        newConnection.transform.position = (drawnNodes[connection.getInNode()].transform.position + drawnNodes[connection.getOutNode()].transform.position) / 2f;
+            if (connection.getExpressed()) {
+                GameObject newConnection = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                newConnection.transform.position = (drawnNodes[connection.getInNode()].transform.position + drawnNodes[connection.getOutNode()].transform.position) / 2f;
 
-                        newConnection.transform.localScale = new Vector3 (1, Vector3.Distance(drawnNodes[connection.getInNode()].transform.position, drawnNodes[connection.getOutNode()].transform.position), 1);
-                        newConnection.transform.localScale = new Vector3 (newConnection.transform.localScale.y * 0.01f, newConnection.transform.localScale.y, 1);
+                newConnection.transform.localScale = new Vector3 (0.05f, Vector3.Distance(drawnNodes[connection.getInNode()].transform.position, drawnNodes[connection.getOutNode()].transform.position), 1);
+                
 
-                        newConnection.transform.rotation = Quaternion.Euler(0,0,90-(Mathf.Atan2(drawnNodes[connection.getOutNode()].transform.position.y - drawnNodes[connection.getInNode()].transform.position.y,
+                newConnection.transform.rotation = Quaternion.Euler(0,0,90-(Mathf.Atan2(drawnNodes[connection.getOutNode()].transform.position.y - drawnNodes[connection.getInNode()].transform.position.y,
                                                                                                 drawnNodes[connection.getOutNode()].transform.position.x - drawnNodes[connection.getInNode()].transform.position.x )) * Mathf.Rad2Deg * -1);
-                    }
+
+                
+                if (connection.getWeight() < 0f) {
+                    newConnection.GetComponent<MeshRenderer>().material.shader = Shader.Find("Unlit/Color");
+                    newConnection.GetComponent<MeshRenderer>().material.color = Color.grey;
                 }
             }
         }
