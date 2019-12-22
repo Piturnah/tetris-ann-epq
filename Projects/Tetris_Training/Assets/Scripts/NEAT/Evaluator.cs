@@ -91,6 +91,8 @@ public abstract class Evaluator {
         // put best genomes from species into next generation
         foreach (Species s in species) {
             // sort genomes by fitness
+            s.fitnessPop.Sort(FitnessGenomeComparator.CompareTo);
+            s.fitnessPop.Reverse();
 
             FitnessGenome fittestInSpecies = s.fitnessPop[0];
             nextGenGenomes.Add(fittestInSpecies.genome);
@@ -208,6 +210,18 @@ public abstract class Evaluator {
             members.Clear();
             fitnessPop.Clear();
             totalAdjustedFitness = 0f;
+        }
+    }
+
+    public class FitnessGenomeComparator {
+
+        public static int CompareTo(FitnessGenome one, FitnessGenome two) {
+            if (one.fitness > two.fitness) {
+                return 1;
+            } else if (one.fitness < two.fitness) {
+                return -1;
+            }
+            return 0;
         }
     }
 }
