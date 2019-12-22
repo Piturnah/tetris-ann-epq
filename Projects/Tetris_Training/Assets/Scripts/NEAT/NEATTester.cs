@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,6 +51,19 @@ public class NEATTester : MonoBehaviour
 
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
-        NEATRenderer.DrawGenome(offspringGenome, Vector3.zero, Vector2.one * 5);
+        NEATRenderer.DrawGenome(firstParent, Vector3.zero, Vector2.one * 5);
+
+        Evaluator eval = new Evaluator(100, firstParent);
+
+        int drawI = 0;
+        for (int i = 0; i < 100; i++) {
+            eval.Evaluate();
+            
+            if (i % 10 == 0) {
+                NEATRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3(6 * (drawI+1), 0, 0), Vector2.one * 5);
+                drawI++;
+            }
+            print("Generation: " +i);
+        }
     }
 }

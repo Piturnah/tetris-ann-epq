@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine;
 
 public class Genome
 {
@@ -12,7 +13,7 @@ public class Genome
     Dictionary<int, ConnectionGene> connections;
     Dictionary<int, NodeGene> nodes;
 
-    Random rand = new Random();
+    System.Random rand = new System.Random();
 
     public Genome()
     {
@@ -64,8 +65,8 @@ public class Genome
 
     public void AddConnectionMutation()
     {
-        NodeGene node1 = nodes[rand.Next(nodes.Count)];
-        NodeGene node2 = nodes[rand.Next(nodes.Count)];
+        NodeGene node1 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
+        NodeGene node2 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
         float weight = (float)rand.NextDouble() * 2f - 1f;
 
         if (node2.getType() == NodeGene.TYPE.SENSOR || node1.getType() == NodeGene.TYPE.OUTPUT)
@@ -93,14 +94,14 @@ public class Genome
 
     public void AddNodeMutation()
     {
-        ConnectionGene connection = connections[rand.Next(connections.Count)];
+        ConnectionGene connection = connections.ElementAt(rand.Next(0, connections.Count)).Value;
 
         NodeGene inNode = nodes[connection.getInNode()];
         NodeGene outNode = nodes[connection.getOutNode()];
 
         connection.Disable();
 
-        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, nodes.Count);
+        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, nodes.Count + 1);
         ConnectionGene inToNew = new ConnectionGene(inNode.getId(), newNode.getId(), 1f, true, History.Innovate());
         ConnectionGene newToOut = new ConnectionGene(newNode.getId(), outNode.getId(), connection.getWeight(), true, History.Innovate());
 
@@ -111,7 +112,7 @@ public class Genome
 
     public static Genome Crossover(Genome parent1, Genome parent2)
     { // parent1 always more fit parent - no equal fitness parents
-        Random rand = new Random();
+        System.Random rand = new System.Random();
         Genome offspring = new Genome();
 
         foreach (NodeGene parent1Node in parent1.GetNodes().Values)
@@ -181,7 +182,7 @@ public class Genome
         int highestInnovation2 = nodeKeys2[nodeKeys2.Count() - 1];
         int minHighestInnovation = Math.Min(highestInnovation1, highestInnovation2);
 
-        for (int i = 0; i <= minHighestInnovation; i++)
+        for (int i = 1; i <= minHighestInnovation; i++)
         {
             NodeGene node1 = genome1.GetNodes()[i];
             NodeGene node2 = genome2.GetNodes()[i];
@@ -204,10 +205,11 @@ public class Genome
         highestInnovation2 = connectionKeys2[nodeKeys2.Count() - 1];
         minHighestInnovation = Math.Min(highestInnovation1, highestInnovation2);
 
-        for (int i = 0; i <= minHighestInnovation; i++)
+        for (int i = 1; i <= minHighestInnovation; i++)
         {
-            ConnectionGene connection1 = genome1.GetConnections()[i];
-            ConnectionGene connection2 = genome2.GetConnections()[i];
+            ConnectionGene value = null;
+            ConnectionGene connection1 = (genome1.GetConnections().TryGetValue(i, out value))?genome1.GetConnections()[i]:null;
+            ConnectionGene connection2 = (genome2.GetConnections().TryGetValue(i, out value))?genome2.GetConnections()[i]:null;;
             if (connection1 != null && connection2 != null) // both exist
             {
                 matchingGenes++;

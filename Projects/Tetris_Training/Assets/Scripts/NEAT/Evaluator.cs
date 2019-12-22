@@ -1,9 +1,10 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public abstract class Evaluator {
+public class Evaluator {
 
     int populationSize;
     Dictionary<Genome, Species> speciesMap;
@@ -35,12 +36,14 @@ public abstract class Evaluator {
         species = new List<Species>();
     }
 
-    void Evaluate() {
+    public void Evaluate() {
 
+        Console.WriteLine("hello");
         // reset everything
         foreach (Species s in species) {
             s.ResetSpecies(new Random());
         }
+        Console.WriteLine("Got this far");
         scoreMap.Clear();
         speciesMap.Clear();
         nextGenGenomes.Clear();
@@ -173,7 +176,9 @@ public abstract class Evaluator {
         return fittestGenome;
     }
 
-    public abstract float EvaluateGenome(Genome genome);
+    public float EvaluateGenome(Genome genome) { // change body for other evals
+        return (genome.GetConnections().Values.Count);
+    }
 
     public class FitnessGenome {
 

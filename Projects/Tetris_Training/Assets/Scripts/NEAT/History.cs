@@ -1,7 +1,7 @@
 ﻿
 public class History
 {
-    public static int innovation;
+    public static int innovation = 8;
 
     public static int Innovate()
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,9 +58,10 @@ public class NEATRenderer : MonoBehaviour
 
         // draw hidden
         List<List<NodeGene>> hiddenLayers = new List<List<NodeGene>>();
+        System.Random rand = new System.Random();
         for (int i = 0; i < hiddens.Count; i++) {
             GameObject newNode = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            newNode.transform.position = new Vector3(position.x, position.y - 0.5f * dimensions.y + (i + 1) * (dimensions.y / (outputs.Count + 2)), 0);
+            newNode.transform.position = new Vector3(position.x + ((float)rand.NextDouble() * 2 - 1) * dimensions.x / 2 , position.y - 0.5f * dimensions.y + (i + 1) * (dimensions.y / (hiddens.Count + 2)), 0);
 
             newNode.transform.localScale = Vector3.one * nodeSize;
             drawnNodes.Add(i + sensors.Count + outputs.Count + 1, newNode);
