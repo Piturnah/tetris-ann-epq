@@ -76,6 +76,10 @@ public class Genome
             node2 = tempGene.CopyNode();
         }
 
+        if (node1.getType() == NodeGene.TYPE.OUTPUT) {
+            return; // quietly return if still trying to use output as in-node
+        }
+
         bool connectionExists = false; // check if connection already exists
         foreach (ConnectionGene connection in connections.Values)
         {

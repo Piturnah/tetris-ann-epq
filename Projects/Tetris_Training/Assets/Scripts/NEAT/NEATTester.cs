@@ -18,6 +18,7 @@ public class NEATTester : MonoBehaviour
         firstParent.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 4));
         firstParent.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 5));
 
+
         // CONNECTIONS
 
         firstParent.AddConnectionGene(new ConnectionGene(1, 4, 1f, true, 1));
@@ -53,7 +54,7 @@ public class NEATTester : MonoBehaviour
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
         NEATRenderer.DrawGenome(firstParent, Vector3.zero, Vector2.one * 5);
 
-        Evaluator eval = new Evaluator(100, firstParent);
+        Evaluator eval = new Evaluator(20, firstParent);
 
         int drawI = 0;
         for (int i = 0; i < 100; i++) {
