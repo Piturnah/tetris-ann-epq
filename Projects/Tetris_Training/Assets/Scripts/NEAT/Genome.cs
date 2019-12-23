@@ -30,6 +30,7 @@ public class Genome
     public void AddConnectionGene(ConnectionGene gene)
     {
         connections.Add(gene.getInnovation(), gene);
+        GetNodes()[gene.getOutNode()].AddInNode(GetNodes()[gene.getInNode()]);
     }
     public void AddNodeGene(NodeGene gene)
     {
@@ -76,9 +77,17 @@ public class Genome
             node2 = tempGene.CopyNode();
         }
 
-        if (node1.getType() == NodeGene.TYPE.OUTPUT) {
-            return; // quietly return if still trying to use output as in-node
+        if (node1.getType() == NodeGene.TYPE.OUTPUT || node2.getType() == NodeGene.TYPE.SENSOR) {
+            return; // quietly return if still trying to use output as in-node or sensor as out
         }
+
+        // check if node2 has higher distance from sensor than node1, if not then return
+        // to ensure network remains purely feed-forward
+        if (node2.CalculateDstFromSensor() <= node1.CalculateDstFromSensor()) {
+            ConsoleLogger.Log("killed bad mutation");
+            return;
+        }
+        ConsoleLogger.Log("Didn't kill mutation");
 
         bool connectionExists = false; // check if connection already exists
         foreach (ConnectionGene connection in connections.Values)
@@ -91,8 +100,11 @@ public class Genome
 
         if (!connectionExists)
         {
-            ConnectionGene newConnection = new ConnectionGene(node1.getId(), node2.getId(), weight, true, History.Innovate());
-            connections.Add(newConnection.getInnovation(), newConnection);
+            //ConnectionGene newConnection = new ConnectionGene(node1.getId(), node2.getId(), weight, true, History.Innovate());
+            //connections.Add(newConnection.getInnovation(), newConnection);
+
+            //node2.AddInNode(node1);
+            AddConnectionGene(new ConnectionGene(node1.getId(), node2.getId(), weight, true, History.Innovate()));
         }
     }
 
@@ -110,8 +122,16 @@ public class Genome
         ConnectionGene newToOut = new ConnectionGene(newNode.getId(), outNode.getId(), connection.getWeight(), true, History.Innovate());
 
         nodes.Add(newNode.getId(), newNode);
-        connections.Add(inToNew.getInnovation(), inToNew);
-        connections.Add(newToOut.getInnovation(), newToOut);
+        //connections.Add(inToNew.getInnovation(), inToNew);
+        //connections.Add(newToOut.getInnovation(), newToOut);
+        AddConnectionGene(inToNew);
+        AddConnectionGene(newToOut);
+
+        //newNode.AddInNode(GetNodes()[inToNew.getInNode()]);
+        //GetNodes()[newToOut.getOutNode()].AddInNode(newNode);
+
+        // remove old in-node from out gene
+        outNode.RemoveInNode(inNode);
     }
 
     public static Genome Crossover(Genome parent1, Genome parent2)
@@ -205,8 +225,8 @@ public class Genome
         List<int> connectionKeys2 = genome2.GetConnections().Keys.ToList();
         connectionKeys2.Sort();
 
-        highestInnovation1 = connectionKeys1[nodeKeys1.Count() - 1];
-        highestInnovation2 = connectionKeys2[nodeKeys2.Count() - 1];
+        highestInnovation1 = connectionKeys1[connectionKeys1.Count() - 1];
+        highestInnovation2 = connectionKeys2[connectionKeys2.Count() - 1];
         minHighestInnovation = Math.Min(highestInnovation1, highestInnovation2);
 
         for (int i = 1; i <= minHighestInnovation; i++)
@@ -258,5 +278,11 @@ public class Genome
         excessGenes += maxHighestInnovation - minHighestInnovation;
 
         return excessGenes;
+    }
+
+    public void ResetNodeActivity() {
+        foreach (NodeGene node in GetNodes().Values) {
+            node.SetActive(false);
+        }
     }
 }

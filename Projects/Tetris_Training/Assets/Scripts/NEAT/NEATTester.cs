@@ -8,6 +8,8 @@ public class NEATTester : MonoBehaviour
     Genome firstParent = new Genome();
     Genome secondParent = new Genome();
 
+    Genome simpleGenome = new Genome();
+
     void Start()
     {
         // FIRST PARENT
@@ -50,21 +52,28 @@ public class NEATTester : MonoBehaviour
         secondParent.AddConnectionGene(new ConnectionGene(3, 5, 1f, true, 9));
         secondParent.AddConnectionGene(new ConnectionGene(1, 6, 1f, true, 10));
 
+        // SIMPLE GENOME
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 1));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 2));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 3));
+
+        simpleGenome.AddConnectionGene(new ConnectionGene(1, 3, 1f, true, 1));
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
-        NEATRenderer.DrawGenome(firstParent, Vector3.zero, Vector2.one * 5);
 
-        Evaluator eval = new Evaluator(20, firstParent);
+        Evaluator eval = new Evaluator(50, simpleGenome);
 
         int drawI = 0;
+        int scale = 10;
         for (int i = 0; i < 100; i++) {
             eval.Evaluate();
             
             if (i % 10 == 0) {
-                NEATRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3(6 * (drawI+1), 0, 0), Vector2.one * 5);
+                NEATRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
                 drawI++;
             }
-            print("Generation: " +i);
+            print("Generation: " +i + "\nHighest fitness: "+eval.GetHighestFitness() + "\nNo. species: " + eval.GetSpeciesAmount());
+            
         }
     }
 }

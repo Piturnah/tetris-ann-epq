@@ -16,7 +16,7 @@ public class Evaluator {
     const float c1 = 1f;
     const float c2 = 1f;
     const float c3 = 0.4f;
-    const float dt = 10f;
+    const float dt = 1f;
     const float _MUTATION_RATE = 0.5f;
     const float _ADD_CONONECTION_RATE = 0.1f;
     const float _ADD_NODE_RATE = 0.1f;
@@ -69,7 +69,7 @@ public class Evaluator {
         }
 
         // remove dead species
-        foreach (Species s in species) {
+        foreach (Species s in species.ToList()) {
             if (s.members.Count == 0) {
                 species.Remove(s);
             }
@@ -145,7 +145,8 @@ public class Evaluator {
                 return s;
             }
         }
-        throw new Exception("Couldn't find a new species");
+        
+        return species[rand.Next(species.Count)];
     }
 
     Genome GetRandomGenomeBiasedAdjustedFitness(Species selectFrom, Random rand) {
@@ -161,7 +162,8 @@ public class Evaluator {
                 return fg.genome;
             }
         }
-        throw new Exception("Couldn't find a new genome");
+        
+        return selectFrom.fitnessPop[rand.Next(selectFrom.fitnessPop.Count)].genome;
     }
 
     public int GetSpeciesAmount() {
@@ -177,7 +179,16 @@ public class Evaluator {
     }
 
     public float EvaluateGenome(Genome genome) { // change body for other evals
-        return (genome.GetConnections().Values.Count);
+        //List<int> maxDsts = new List<int>();
+        //foreach(NodeGene node in genome.GetNodes().Values) {
+        //    if (node.getType() == NodeGene.TYPE.OUTPUT) {
+        //        maxDsts.Add(node.CalculateDstFromSensor());
+        //    }
+        //}
+
+        //return maxDsts.Max()/2;
+
+        return genome.GetConnections().Count;
     }
 
     public class FitnessGenome {
