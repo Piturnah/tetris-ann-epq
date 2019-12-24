@@ -66,7 +66,12 @@ public class NEATTester : MonoBehaviour
         int drawI = 0;
         int scale = 10;
         for (int i = 0; i < 100; i++) {
-            eval.Evaluate();
+            List<float> scores = new List<float>();
+            foreach (Genome g in eval.genomes) {
+                scores.Add(eval.EvaluateGenome(g));
+            }
+
+            eval.Evaluate(scores.ToArray());
             
             if (i % 10 == 0) {
                 NEATRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);

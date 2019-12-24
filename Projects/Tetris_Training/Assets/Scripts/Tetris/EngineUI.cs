@@ -32,7 +32,7 @@ public class EngineUI : MonoBehaviour
         obj.scoreText = GameObject.Find("Score").GetComponent<Text>();
         GenerateTilemap();
 
-        TetrisEngine.death += OnDeath;
+        //engine.death += OnDeath;
         engine.nextAnimFrame += Flash;
         engine.tetrominoSpawned += UpdateTetrominoHolder;
         UpdateTetrominoHolder();
@@ -145,7 +145,7 @@ public class EngineUI : MonoBehaviour
         Camera.main.backgroundColor = bgMain;
     }
 
-    void OnDeath(int score, GameObject ignore)
+    void OnDeath(int score)
     {
         obj = FindObjectOfType<Objects>().GetComponent<Objects>(); // don't know why I have to do this again.
         obj.deathMenu.transform.Find("Score").GetComponent<Text>().text = "Score: " + score.ToString("000000");

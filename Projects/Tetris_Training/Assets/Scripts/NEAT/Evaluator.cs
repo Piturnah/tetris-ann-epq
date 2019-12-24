@@ -3,26 +3,32 @@ using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using Random=System.Random;
 
 public class Evaluator {
 
     int populationSize;
     Dictionary<Genome, Species> speciesMap;
     Dictionary<Genome, float> scoreMap;
-    List<Genome> genomes;
+    public List<Genome> genomes;
     List<Genome> nextGenGenomes;
     List<Species> species;
 
     const float c1 = 1f;
     const float c2 = 1f;
     const float c3 = 0.4f;
-    const float dt = 1f;
+    const float dt = 3.5f;
     const float _MUTATION_RATE = 0.5f;
     const float _ADD_CONONECTION_RATE = 0.1f;
     const float _ADD_NODE_RATE = 0.1f;
 
     float highestScore;
     Genome fittestGenome;
+
+    public float EvaluateGenome(Genome genome) { // change body for other evals
+        return genome.GetConnections().Count;
+    }
 
     public Evaluator(int populationSize, Genome startingGenome) {
         this.populationSize = populationSize;
@@ -36,14 +42,13 @@ public class Evaluator {
         species = new List<Species>();
     }
 
-    public void Evaluate() {
+    public void Evaluate(float[] scores) {
 
-        Console.WriteLine("hello");
         // reset everything
         foreach (Species s in species) {
-            s.ResetSpecies(new Random());
+            s.ResetSpecies(new System.Random());
         }
-        Console.WriteLine("Got this far");
+
         scoreMap.Clear();
         speciesMap.Clear();
         nextGenGenomes.Clear();
@@ -79,7 +84,7 @@ public class Evaluator {
         foreach (Genome g in genomes) {
             Species s = speciesMap[g];
 
-            float score = EvaluateGenome(g);
+            float score = scores.ToList()[genomes.IndexOf(g)];
             float adjustedScore = score / speciesMap[g].members.Count;
 
             s.AddAdjustedFitness(adjustedScore);
@@ -176,11 +181,6 @@ public class Evaluator {
 
     public Genome GetFittestGenome() {
         return fittestGenome;
-    }
-
-    public float EvaluateGenome(Genome genome) { // change body for other evals
-        NeuralNetwork neuralNet = new NeuralNetwork(genome);
-        return -(float)neuralNet.GetNNResult(new float[] {1, 2, 3}, 1)[0];
     }
 
     public class FitnessGenome {

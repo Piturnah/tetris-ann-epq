@@ -23,8 +23,8 @@ public class TetrisEngine : MonoBehaviour
     public int nextTetrominoIndex;
 
     int[,,] tetrominoPool = new int[4, 4, 4];
-    int[,] currentTetrominoState = new int[4, 4];
-    int[] currentTetrominoPos = new int[2];
+    public int[,] currentTetrominoState = new int[4, 4];
+    public int[] currentTetrominoPos = new int[2];
 
     int rotationState;
 
@@ -36,7 +36,7 @@ public class TetrisEngine : MonoBehaviour
     public event Action updateField;
     public event Action tetrominoSpawned;
     public event Action nextAnimFrame;
-    public static event Action<int, GameObject> death;
+    public event Action<int> death;
     int softDropCounter;
 
     [HideInInspector]public bool are;
@@ -219,7 +219,7 @@ public class TetrisEngine : MonoBehaviour
                         count18++;
                         if (count18 >= 2)
                         {
-                            death?.Invoke(score.score, gameObject); // this engine dies
+                            death?.Invoke(score.score); // this engine dies
                             dead = true;
                             buttonInfo.Reset();
                         }

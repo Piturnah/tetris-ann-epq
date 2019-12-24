@@ -37,7 +37,7 @@ public class Manager : MonoBehaviour
         savePath = Application.persistentDataPath;
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
-        TetrisEngine.death += OnDeath;
+        //TetrisEngine.death += OnDeath;
         humanHiScoreVal = GetHumanHiScore();
 
     }

@@ -9,7 +9,7 @@ public class NeuralNetwork
         this.genome = genome;
     }
 
-    public float[] GetNNResult(float[] inputs, int noOutputs) {
+    public float[] GetNNResult(float[] inputs) {
         List<float> outputActivations = new List<float>();
 
         foreach (NodeGene node in genome.GetNodes().Values) {

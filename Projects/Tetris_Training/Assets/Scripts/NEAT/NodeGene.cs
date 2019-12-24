@@ -19,7 +19,7 @@ public class NodeGene
 
     public float GetActivation(float[] inputs) {
         if (type == TYPE.SENSOR) {
-            return History.Sigmoid(inputs[id]);
+            return History.Sigmoid(inputs[id-1]);
         }
 
         else {
@@ -27,7 +27,7 @@ public class NodeGene
             foreach (NodeGene node in directInNodes.Keys) {
                 ConnectionGene connectionIn = directInNodes[node];
 
-                summedActivation += node.GetActivation(inputs) * connectionIn.getWeight();
+                summedActivation += (connectionIn.getExpressed())? node.GetActivation(inputs) * connectionIn.getWeight() : 0;
             }
 
             return History.Sigmoid(summedActivation);
