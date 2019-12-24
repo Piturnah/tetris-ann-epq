@@ -30,7 +30,7 @@ public class Genome
     public void AddConnectionGene(ConnectionGene gene)
     {
         connections.Add(gene.getInnovation(), gene);
-        GetNodes()[gene.getOutNode()].AddInNode(GetNodes()[gene.getInNode()]);
+        GetNodes()[gene.getOutNode()].AddInNode(GetNodes()[gene.getInNode()], gene);
     }
     public void AddNodeGene(NodeGene gene)
     {

@@ -12,13 +12,10 @@ public class NeuralNetwork
     public float[] GetNNResult(float[] inputs, int noOutputs) {
         List<float> outputActivations = new List<float>();
 
-        while (outputActivations.Count < noOutputs) {
-            // for all non-sensor nodes
-                // activate node
-                // sum the input
-
-            // for all non-sensor and active nodes
-                // calculate the output
+        foreach (NodeGene node in genome.GetNodes().Values) {
+            if (node.getType() == NodeGene.TYPE.OUTPUT) {
+                outputActivations.Add(node.GetActivation(inputs));
+            }
         }
 
         genome.ResetNodeActivity();

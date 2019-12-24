@@ -179,16 +179,8 @@ public class Evaluator {
     }
 
     public float EvaluateGenome(Genome genome) { // change body for other evals
-        //List<int> maxDsts = new List<int>();
-        //foreach(NodeGene node in genome.GetNodes().Values) {
-        //    if (node.getType() == NodeGene.TYPE.OUTPUT) {
-        //        maxDsts.Add(node.CalculateDstFromSensor());
-        //    }
-        //}
-
-        //return maxDsts.Max()/2;
-
-        return genome.GetConnections().Count;
+        NeuralNetwork neuralNet = new NeuralNetwork(genome);
+        return -(float)neuralNet.GetNNResult(new float[] {1, 2, 3}, 1)[0];
     }
 
     public class FitnessGenome {
