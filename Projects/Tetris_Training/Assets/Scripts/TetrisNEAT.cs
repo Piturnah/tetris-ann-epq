@@ -2,47 +2,102 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UI;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public class TetrisNEAT : MonoBehaviour
 {
-    [SerializeField]
-    public GameObject agent;
+    [SerializeField] public GameObject agent;
+    [SerializeField] Text genText;
+    [SerializeField] Text genomeText;
+    [SerializeField] Text highScoreText;
 
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 20;
+    int popSize = 100;
+    int batchSize = 50;
+    int batched = 0;
+    int generation = 0;
 
     int popIteration = 0;
+    int highScore = 0;
 
     bool agentsPlaying = false;
+    bool oneByOne = false;
     GameObject runningAgent;
     List<int> scores = new List<int>();
 
     void Start()
     {
-        Time.timeScale = 10;
+        Time.timeScale = 2;
         eval = new Evaluator(popSize, startingGenome);
+        genText.text = "Generation: " + generation.ToString("0000");
+        if (!oneByOne) {
+            genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
+        }
     }
 
     private void Update() {
-        if (!agentsPlaying) {
-            agentsPlaying = true;
-            if (popIteration < popSize) { // still in same generation
-                runningAgent = MakeNewAgent(eval.genomes[popIteration]);
+        if (oneByOne) {
+            if (!agentsPlaying) {
+                agentsPlaying = true;
+                if (popIteration < popSize) { // still in same generation
+                    runningAgent = MakeNewAgent(eval.genomes[popIteration]);
+
+                    genomeText.text = "Genome: " + popIteration.ToString("0000");
+                }
+            }
+        } else {
+            if (!agentsPlaying) {
+                agentsPlaying = true;
+                for (int i = 0; i < batchSize; i++) {
+                    GameObject newAgent = MakeNewAgent(eval.genomes[i + batched * batchSize]);
+                    if (i == 0) {
+                        newAgent.GetComponent<EngineUI>().enabled = true;
+                    }
+                }
+                
             }
         }
     }
 
-    void TakeScore(int score) {
+    void TakeScore(int score, GameObject deadObj) {
         scores.Add(score);
-        Destroy(runningAgent);
+        Destroy(deadObj);
         popIteration++;
-        if (popIteration == popSize) {
+        if (popIteration == batchSize) {
+            batched++;
+            agentsPlaying = false;
+            
+            genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
+
+            if (popIteration * batched == popSize) {
+                batched = 0;
+                eval.Evaluate(scores.ToArray().Select(x => (float)x).ToArray()); // evaluate and breed current genomes
+            
+                SaveGenome(eval.GetFittestGenome(), "/" + generation.ToString() + ".tetro");
+
+                generation++;
+            }
             popIteration = 0;
-            eval.Evaluate(scores.ToArray().Select(x => (float)x).ToArray()); // evaluate and breed current genomes
+
+            genText.text = "Generation: " + generation.ToString("0000");
         }
-        agentsPlaying = false;
+        if (oneByOne) {
+            agentsPlaying = false;
+        }
+        
+
+        if (score > highScore) {
+            highScore = score;
+            UpdateHighScore();
+        }
+    }
+
+    void UpdateHighScore() {
+        highScoreText.text = "Highscore: " + highScore.ToString("0000000");
     }
 
     public GameObject MakeNewAgent(Genome genome) {
@@ -73,20 +128,56 @@ public class TetrisNEAT : MonoBehaviour
         // add tetromino position sensor
         startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 218));
         startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 219));
-        // add initial BIAS SENSOR - SHOULD ALWAYS BE SET TO 1
+        // add initial sensor for previous frame DAS
         startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 220));
+        // add initial BIAS SENSOR - SHOULD ALWAYS BE SET TO 1
+        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 221));
 
         //add initial out nodes
-        // 221 - left
-        // 222 - down
-        // 223 - right
-        // 224 - a
-        // 225 - b
-        for (int i = 221; i < 226; i++) {
+        // 222 - null
+        // 223 - left
+        // 224 - down
+        // 225 - right
+        // 226 - a
+        // 227 - b
+        for (int i = 222; i < 228; i++) {
             startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, i));
         }
 
-        // add initial connection from bias to down button
-        startingGenome.AddConnectionGene(new ConnectionGene(220, 222, 1f, true, History.Innovate()));
+        for (int y = 0; y < 20; y++) {
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
+            startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
+        }
+
+        for (int y = 0; y < 20; y++) {
+            for (int x = 0; x < 10; x++) {
+                startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
+            }
+        }
+    }
+
+    public static void SaveGenome(Genome genome, string extPath) {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/" + extPath;
+
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+        formatter.Serialize(stream, genome);
+        stream.Close();
+    }
+
+    public static Genome OpenGenome(string extPath) {
+        string path = Application.persistentDataPath + "/" + extPath;
+
+        if (File.Exists(path)) {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
+
+            Genome genome = formatter.Deserialize(stream) as Genome;
+            stream.Close();
+            return genome;
+        } else {
+            return null;
+        }
     }
 }

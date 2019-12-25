@@ -6,10 +6,11 @@ using System;
 
 public class TetrisAgent : MonoBehaviour
 {
-    public event Action<int> died;
+    public event Action<int, GameObject> died;
     public NeuralNetwork neuralNet;
 
     TetrisEngine engine;
+    int previousInputFrame;
 
     private void Awake() {
         engine = GetComponent<TetrisEngine>();
@@ -20,24 +21,31 @@ public class TetrisAgent : MonoBehaviour
     }
 
     void GiveScore(int score) {
-        died?.Invoke(score);
+        died?.Invoke(engine.score.score, gameObject);
     }
 
     private void Update() {
-        GetOutputs();
+        if (engine.frameCounter > previousInputFrame) {
+            previousInputFrame = engine.frameCounter;
+            GetOutputs();
+        }
     }
 
     void DoMove(float[] outputs) {
+        engine.buttonInfo.ResetInputs();
         switch (outputs.ToList().IndexOf(outputs.Max())) {
-            case 0:
-                engine.buttonInfo.lButton = true; break;
+            case 0: break;
             case 1:
-                engine.buttonInfo.dButton = true; break;
+                engine.buttonInfo.lButton = true; break;
             case 2:
-                engine.buttonInfo.rbutton = true; break;
+                engine.buttonInfo.dButton = true; break;
             case 3:
-                engine.buttonInfo.aButton = true; break;
+                engine.buttonInfo.rbutton = true; break;
             case 4:
+                engine.RotateTetromino(-1);
+                engine.buttonInfo.aButton = true; break;
+            case 5:
+                engine.RotateTetromino(1);
                 engine.buttonInfo.bButton = true; break;
             default: break;
         }
@@ -62,6 +70,8 @@ public class TetrisAgent : MonoBehaviour
         // add tetromino position
         inputField.Add(engine.currentTetrominoPos[0]);
         inputField.Add(engine.currentTetrominoPos[1]);
+        // add lr prev frame info
+        inputField.Add((engine.buttonInfo.lrPreviousFrame)?1:0);
         // add bias
         inputField.Add(1f);
 

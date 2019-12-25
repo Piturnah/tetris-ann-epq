@@ -28,7 +28,7 @@ public class TetrisEngine : MonoBehaviour
 
     int rotationState;
 
-    [HideInInspector] public int startLevel = 0;
+    [HideInInspector] public int startLevel;
     [HideInInspector] public int level;
     float previousDropTime;
     float previousDASUpdate;
@@ -88,9 +88,14 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
+                if (currentTetrominoState[x,y] == 0) {
+                    continue;
+                }
+                if (x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
                 {
-                    viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                    if (currentTetrominoPos[1] + y >= 0 && currentTetrominoPos[1] + y <= 19 && currentTetrominoPos[0] + x >= 0 && currentTetrominoPos[0] + x <= 9) {
+                        viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                    }
                 }
             }
         }
@@ -170,7 +175,10 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x, y] != 0) && (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0))
+                if (currentTetrominoState[x,y] == 0) {
+                    continue;
+                }
+                if (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0)
                 {
                     return true;
                 }
@@ -236,7 +244,10 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if ((currentTetrominoState[x,y] != 0) && (currentTetrominoPos[1] + y < 0 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0))
+                if (currentTetrominoState[x,y] == 0) {
+                    continue;
+                }
+                if (currentTetrominoPos[1] + y < 0 || currentTetrominoPos[1] + y > 19 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0)
                 {
                     return true;
                 }
@@ -376,7 +387,7 @@ public class TetrisEngine : MonoBehaviour
 
     bool DetectRotationCollisions()
     {
-        if (DetectHorizontalCollisions() || DetectVerticalCollisions())
+        if (DetectVerticalCollisions() || DetectHorizontalCollisions())
         {
             return true;
         }
@@ -454,6 +465,10 @@ public class TetrisEngine : MonoBehaviour
         public void Reset()
         {
             lrPreviousFrame = lButton = rbutton = dPreviousFrame = dButton = aButton = bButton = false;
+        }
+
+        public void ResetInputs() {
+            lButton = rbutton = dButton = aButton = bButton = false;
         }
     }
 }

@@ -38,7 +38,7 @@ public class EngineUI : MonoBehaviour
         UpdateTetrominoHolder();
 
         unselectedCol = obj.nesController.transform.Find("MID").GetComponent<Image>().color;
-        obj.humanHIText.text = "Human HI: " + Manager.humanHiScoreVal.ToString("000000");
+        //obj.humanHIText.text = "Human HI: " + Manager.humanHiScoreVal.ToString("000000");
     }
     private void Update()
     {

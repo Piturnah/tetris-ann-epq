@@ -15,13 +15,13 @@ public class Evaluator {
     List<Genome> nextGenGenomes;
     List<Species> species;
 
-    const float c1 = 1f;
-    const float c2 = 1f;
-    const float c3 = 0.4f;
-    const float dt = 3.5f;
+    const float c1 = 1.5f;
+    const float c2 = 1.5f;
+    const float c3 = 0.5f;
+    const float dt = 0.15f;
     const float _MUTATION_RATE = 0.5f;
-    const float _ADD_CONONECTION_RATE = 0.1f;
-    const float _ADD_NODE_RATE = 0.1f;
+    const float _ADD_CONONECTION_RATE = 0.5f;
+    const float _ADD_NODE_RATE = 0.3f;
 
     float highestScore;
     Genome fittestGenome;
@@ -70,6 +70,7 @@ public class Evaluator {
                 Species newSpecies = new Species(g);
                 species.Add(newSpecies);
                 speciesMap.Add(g, newSpecies);
+                ConsoleLogger.Log("new species");
             }
         }
 
