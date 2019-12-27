@@ -18,6 +18,9 @@ public class TetrisAgent : MonoBehaviour
 
     private void Start() {
         engine.death += GiveScore;
+        if (GetComponent<EngineUI>() != null) {
+            NEATRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 5.5f, 0), new Vector2(10,6.5f));
+        }
     }
 
     void GiveScore(int score) {

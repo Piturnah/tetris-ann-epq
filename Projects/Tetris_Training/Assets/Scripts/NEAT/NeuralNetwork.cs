@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class NeuralNetwork
 {
-    Genome genome;
+    public Genome genome;
 
     public NeuralNetwork(Genome genome) {
         this.genome = genome;

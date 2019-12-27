@@ -55,28 +55,32 @@ public class NEATTester : MonoBehaviour
         // SIMPLE GENOME
         simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 1));
         simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 2));
-        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 3));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 3));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 4));
+        simpleGenome.AddConnectionGene(new ConnectionGene(1, 4, -1f, true, History.Innovate()));
+        simpleGenome.AddConnectionGene(new ConnectionGene(2, 4, 1f, true, History.Innovate()));
+        simpleGenome.AddConnectionGene(new ConnectionGene(3, 4, 1f, true, History.Innovate()));
 
-        simpleGenome.AddConnectionGene(new ConnectionGene(1, 3, 1f, true, 1));
+        //simpleGenome.AddConnectionGene(new ConnectionGene(2, 3, 1f, true, History.Innovate()));
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
 
-        int numToRender = 67;
+        int numToRender = 1003;
         int scale = 20;
 
-       for (int i = 0; i < numToRender; i++) {
-           NEATRenderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
-       }
+       //for (int i = 1002; i < numToRender; i++) {
+       //    NEATRenderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
+       //}
 
-        
+        SimpleTest();
     }
 
     void SimpleTest() {
-        Evaluator eval = new Evaluator(50, simpleGenome);
+        Evaluator eval = new Evaluator(120, simpleGenome);
 
         int drawI = 0;
-        int scale = 10;
-        for (int i = 0; i < 100; i++) {
+        int scale = 20;
+        for (int i = 0; i < 1000; i++) {
             List<float> scores = new List<float>();
             foreach (Genome g in eval.genomes) {
                 scores.Add(eval.EvaluateGenome(g));

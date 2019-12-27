@@ -15,19 +15,35 @@ public class Evaluator {
     List<Genome> nextGenGenomes;
     List<Species> species;
 
-    const float c1 = 1.5f;
-    const float c2 = 1.5f;
-    const float c3 = 0.5f;
-    const float dt = 0.15f;
-    const float _MUTATION_RATE = 0.5f;
-    const float _ADD_CONONECTION_RATE = 0.5f;
-    const float _ADD_NODE_RATE = 0.3f;
+    const float c1 = 1.0f;
+    const float c2 = 1.0f;
+    const float c3 = 0.4f;
+    const float dt = 3.0f;
+    const float _MUTATION_RATE = 0.8f;
+    const float _ADD_CONONECTION_RATE = 0.05f;
+    const float _ADD_NODE_RATE = 0.03f;
 
     float highestScore;
     Genome fittestGenome;
 
     public float EvaluateGenome(Genome genome) { // change body for other evals
-        return genome.GetConnections().Count;
+        float[][] xorIns = new float[4][] {
+            new float [] {1, 0, 0},
+            new float [] {1, 0, 1},
+            new float [] {1, 1, 0},
+            new float [] {1, 1, 1}
+        }; 
+
+        float[] xorOuts = new float[] {0, 1, 1, 1};
+
+        NeuralNetwork xorNet = new NeuralNetwork(genome);
+        float totCost = 0;
+
+        for (int i = 0; i < 4; i++) {
+            totCost += Mathf.Pow(xorOuts[i] - xorNet.GetNNResult(xorIns[i])[0], 2);
+        }
+
+        return 1f - totCost;
     }
 
     public Evaluator(int populationSize, Genome startingGenome) {

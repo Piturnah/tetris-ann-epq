@@ -170,7 +170,7 @@ public class Genome
         int excessGenes = (int)geneInfo[2];
         int maxGeneCount = GetMaxSize(genome1, genome2);
 
-        return (c1 * excessGenes + c2 * disjointGenes) / maxGeneCount + c3 * geneInfo[1];
+        return (c1 * excessGenes + c2 * disjointGenes) / 1 + c3 * geneInfo[1];
     }
 
     public static int GetMaxSize(Genome genome1, Genome genome2)

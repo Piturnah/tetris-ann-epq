@@ -31,6 +31,7 @@ public class NEATRenderer : MonoBehaviour
         print(hiddens.Count);
 
         Dictionary<int, GameObject> drawnNodes = new Dictionary<int, GameObject>();
+        bitmap
 
         // draw sensors
         for (int i = 0; i < sensors.Count; i++) {
@@ -56,15 +57,26 @@ public class NEATRenderer : MonoBehaviour
             drawnNodes.Add(i + sensors.Count + 1, newNode);
         }
 
-        // draw hidden
-        List<List<NodeGene>> hiddenLayers = new List<List<NodeGene>>();
-        System.Random rand = new System.Random();
-        for (int i = 0; i < hiddens.Count; i++) {
-            GameObject newNode = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            newNode.transform.position = new Vector3(position.x + ((float)rand.NextDouble() * 2 - 1) * dimensions.x / 2 , position.y - 0.5f * dimensions.y + (i + 1) * (dimensions.y / (hiddens.Count + 2)), 0);
+        // sort hidden
+        Dictionary<int, List<NodeGene>> hiddenMap = new Dictionary<int, List<NodeGene>>();
+        foreach (NodeGene hidden in hiddens) {
+            int dstFromSensor = hidden.CalculateDstFromSensor();
+            if (hiddenMap.ContainsKey(dstFromSensor)) {
+                hiddenMap[dstFromSensor].Add(hidden);
+            } else {
+                hiddenMap.Add(dstFromSensor, new List<NodeGene> {hidden});
+            }
+        }
 
-            newNode.transform.localScale = Vector3.one * nodeSize;
-            drawnNodes.Add(i + sensors.Count + outputs.Count + 1, newNode);
+        // draw hidden
+        foreach (KeyValuePair<int, List<NodeGene>> layer in hiddenMap) {
+            for (int i = 0; i < layer.Value.Count; i++) {
+                GameObject newNode = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                newNode.transform.position = new Vector3(position.x - 0.5f * dimensions.x + (i + 1) * (dimensions.x / (layer.Value.Count + 1)), position.y - 0.5f * dimensions.y + (layer.Key) * (dimensions.y / (hiddenMap.Count + 2)), 0);
+
+                newNode.transform.localScale = Vector3.one * nodeSize;
+                drawnNodes.Add(layer.Value[i].getId(), newNode);
+            }
         }
 
         // draw connections
@@ -87,5 +99,31 @@ public class NEATRenderer : MonoBehaviour
                 }
             }
         }
+    }
+
+    public static Texture2D DrawCircle(Texture2D texture, Color colour, int x, int y, int radius) {
+        float rSquared = radius * radius;
+
+        for (int u = x - radius; u < x + radius + 1, u++) {
+            for (int v = y - radius; v < y + radius + 1; v++) {
+                if (Mathf.Pow(x-u, 2) + Mathf.Pow(y-v, 2) < rSquared) {
+                    texture.SetPixel(u, v, colour);
+                }
+            }
+        }
+        return texture;
+    }
+
+    public static Texture2D DrawLine(Texture2D texture, Color colour, Vector2 p1, Vector2 p2) {
+        Vector2 t = p1;
+        float frac = 1/Mathf.Sqrt(Mathf.Pow(p2.x - p1.x, 2) + Mathf.Pow(p2.y - p1.y, 2));
+        float ctr = 0;
+
+        while ((int)t.x != (int)p2.x || (int)t.y != (int)p2.y) {
+            t = Vector2.Lerp(p1, p2, ctr);
+            ctr += frac;
+            texture.SetPixel((int)t.x, (int)t.y, colour);
+        }
+        return texture;
     }
 }

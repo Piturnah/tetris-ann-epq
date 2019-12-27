@@ -16,8 +16,8 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 100;
-    int batchSize = 50;
+    int popSize = 210;
+    int batchSize = 70;
     int batched = 0;
     int generation = 0;
 
@@ -71,7 +71,7 @@ public class TetrisNEAT : MonoBehaviour
             batched++;
             agentsPlaying = false;
             
-            genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
+            
 
             if (popIteration * batched == popSize) {
                 batched = 0;
@@ -82,6 +82,8 @@ public class TetrisNEAT : MonoBehaviour
                 generation++;
             }
             popIteration = 0;
+
+            genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
 
             genText.text = "Generation: " + generation.ToString("0000");
         }

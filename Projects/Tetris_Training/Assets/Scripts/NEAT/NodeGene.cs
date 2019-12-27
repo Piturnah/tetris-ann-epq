@@ -21,7 +21,7 @@ public class NodeGene
 
     public float GetActivation(float[] inputs) {
         if (type == TYPE.SENSOR) {
-            return History.Sigmoid(inputs[id-1]);
+            return inputs[id-1];
         }
 
         else {
