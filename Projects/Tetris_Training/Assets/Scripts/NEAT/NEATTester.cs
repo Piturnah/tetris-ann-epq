@@ -76,6 +76,8 @@ public class NEATTester : MonoBehaviour
     }
 
     void SimpleTest() {
+        NEATRenderer neatRenderer = new NEATRenderer();
+
         Evaluator eval = new Evaluator(120, simpleGenome);
 
         int drawI = 0;
@@ -89,7 +91,7 @@ public class NEATTester : MonoBehaviour
             eval.Evaluate(scores.ToArray());
             
             if (i % 10 == 0) {
-                NEATRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
+                neatRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
                 drawI++;
             }
             print("Generation: " +i + "\nHighest fitness: "+eval.GetHighestFitness() + "\nNo. species: " + eval.GetSpeciesAmount());

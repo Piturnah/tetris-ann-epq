@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - DEVTOOLS
+  - Canvas
   layers:
   - Default
   - TransparentFX

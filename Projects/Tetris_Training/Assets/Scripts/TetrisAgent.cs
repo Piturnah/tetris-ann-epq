@@ -6,7 +6,7 @@ using System;
 
 public class TetrisAgent : MonoBehaviour
 {
-    public event Action<int, GameObject> died;
+    public event Action<int, GameObject, int> died;
     public NeuralNetwork neuralNet;
 
     TetrisEngine engine;
@@ -18,13 +18,22 @@ public class TetrisAgent : MonoBehaviour
 
     private void Start() {
         engine.death += GiveScore;
-        if (GetComponent<EngineUI>() != null) {
-            NEATRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 5.5f, 0), new Vector2(10,6.5f));
+        if (GetComponent<EngineUI>().isActiveAndEnabled) {
+            NEATRenderer neatRenderer = new NEATRenderer();
+            
+            if (GameObject.Find("ParentObj(Clone)") != null) {
+                Destroy(GameObject.Find("ParentObj(Clone)"));
+            }
+            if (GameObject.Find("ParentObj") != null) {
+                Destroy(GameObject.Find("ParentObj"));
+            }
+
+            neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
         }
     }
 
     void GiveScore(int score) {
-        died?.Invoke(engine.score.score, gameObject);
+        died?.Invoke(engine.score.score, gameObject, engine.dropCounter);
     }
 
     private void Update() {

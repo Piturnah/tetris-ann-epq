@@ -38,6 +38,7 @@ public class TetrisEngine : MonoBehaviour
     public event Action nextAnimFrame;
     public event Action<int> death;
     int softDropCounter;
+    public int dropCounter;
 
     [HideInInspector]public bool are;
     [HideInInspector]public int frameCounter;
@@ -48,6 +49,8 @@ public class TetrisEngine : MonoBehaviour
 
     private void Start()
     {
+        startLevel = 15;
+
         score = GetComponent<ScoreController>();
         score.level = startLevel;
 
@@ -190,6 +193,7 @@ public class TetrisEngine : MonoBehaviour
     // Drops the tetromino by one gridcell if the necessary time has passed
     void DropTetromino()
     {
+        dropCounter++;
         bool softDroppingThisFrame = buttonInfo.dButton && Time.time >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level)) / _FRAME_RATE;
         if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) / _FRAME_RATE || softDroppingThisFrame)
         {
@@ -264,10 +268,12 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
-                {
-                    minYPos = Mathf.Min(minYPos, y);
-                    field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                if (currentTetrominoPos[0] + x >= 0 && currentTetrominoPos[0] + x < 10 && currentTetrominoPos[1] + y >= 0 && currentTetrominoPos[1] + y < 20) {
+                    if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
+                    {
+                        minYPos = Mathf.Min(minYPos, y);
+                        field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                    }
                 }
             }
         }

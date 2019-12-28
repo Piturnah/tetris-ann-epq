@@ -170,15 +170,25 @@ public class Genome
         int excessGenes = (int)geneInfo[2];
         int maxGeneCount = GetMaxSize(genome1, genome2);
 
-        return (c1 * excessGenes + c2 * disjointGenes) / 1 + c3 * geneInfo[1];
+        return (c1 * excessGenes + c2 * disjointGenes) / maxGeneCount + c3 * geneInfo[1];
     }
 
     public static int GetMaxSize(Genome genome1, Genome genome2)
     {
         List<int> nodeKeys1 = genome1.GetNodes().Keys.ToList();
+        for (int i = 0; i < nodeKeys1.Count; i++) {
+            if (genome1.GetNodes()[nodeKeys1[i]].getType() == NodeGene.TYPE.SENSOR || genome1.GetNodes()[nodeKeys1[i]].getType() == NodeGene.TYPE.OUTPUT) {
+                nodeKeys1.Remove(i);
+            }
+        }
         nodeKeys1.Sort();
 
         List<int> nodeKeys2 = genome2.GetNodes().Keys.ToList();
+        for (int i = 0; i < nodeKeys2.Count; i++) {
+            if (genome2.GetNodes()[nodeKeys2[i]].getType() == NodeGene.TYPE.SENSOR || genome2.GetNodes()[nodeKeys2[i]].getType() == NodeGene.TYPE.OUTPUT) {
+                nodeKeys2.Remove(i);
+            }
+        }
         nodeKeys2.Sort();
 
         List<int> connectionKeys1 = genome1.GetConnections().Keys.ToList();

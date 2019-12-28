@@ -2,10 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NEATRenderer : MonoBehaviour
 {
-    public static void DrawGenome(Genome genome, Vector3 position, Vector2 dimensions, float nodeSize = 0.5f) {
+    public NEATRenderer() {
+
+    }
+
+    public void DrawGenome(Genome genome, Vector3 position, Vector2 dimensions, float nodeSize = 0.5f) {
 
         List<NodeGene> sensors = new List<NodeGene>();
         List<NodeGene> outputs = new List<NodeGene>();
@@ -31,7 +36,26 @@ public class NEATRenderer : MonoBehaviour
         print(hiddens.Count);
 
         Dictionary<int, GameObject> drawnNodes = new Dictionary<int, GameObject>();
-        bitmap
+
+        Texture2D network = new Texture2D(Mathf.RoundToInt(dimensions.x * 100), Mathf.RoundToInt(dimensions.y * 100));
+        network.filterMode = FilterMode.Point;
+        network.wrapMode = TextureWrapMode.Clamp;
+
+        Color[] newPixels = new Color[network.GetPixels().Length];
+        for (int i = 0; i < newPixels.Length; i++) {
+            newPixels[i] = Color.white;
+        }
+        network.SetPixels(newPixels);
+        network.Apply();
+
+
+        //GameObject quadDisplay = GameObject.CreatePrimitive(PrimitiveType.Quad);
+        //quadDisplay.transform.position = position;
+        //quadDisplay.transform.localScale = dimensions;
+        //quadDisplay.GetComponent<Renderer>().material = new Material (Shader.Find("Unlit/Texture"));
+        //quadDisplay.GetComponent<Renderer>().sharedMaterial.mainTexture = network;
+
+        GameObject parentObj = Instantiate(new GameObject("ParentObj"));
 
         // draw sensors
         for (int i = 0; i < sensors.Count; i++) {
@@ -39,9 +63,21 @@ public class NEATRenderer : MonoBehaviour
             newNode.transform.position = new Vector3(position.x - 0.5f * dimensions.x + i * (dimensions.x / (sensors.Count - 1)),
                                                     position.y - 0.5f * dimensions.y, 0);
             newNode.transform.localScale = Vector3.one * nodeSize;
+            newNode.isStatic = true;
 
             drawnNodes.Add(i + 1, newNode);
+            newNode.transform.parent = parentObj.transform;
+
+            //network = DrawCircle(network, Color.black, 
+            //        Mathf.RoundToInt(0),
+            //        Mathf.RoundToInt(0),
+            //        10);
+            //print("drew thing");
         }
+
+        //GameObject.FindGameObjectWithTag("Canvas").transform.GetChild(0).GetComponent<RawImage>().texture = network;
+    
+        network.Apply();
 
         // draw outputs
         for (int i = 0; i < outputs.Count; i++) {
@@ -53,8 +89,10 @@ public class NEATRenderer : MonoBehaviour
                 newNode.transform.position = new Vector3(position.x, position.y + 0.5f * dimensions.y, 0);
             }
             newNode.transform.localScale = Vector3.one * nodeSize;
+            newNode.isStatic = true;
 
             drawnNodes.Add(i + sensors.Count + 1, newNode);
+            newNode.transform.parent = parentObj.transform;
         }
 
         // sort hidden
@@ -75,7 +113,10 @@ public class NEATRenderer : MonoBehaviour
                 newNode.transform.position = new Vector3(position.x - 0.5f * dimensions.x + (i + 1) * (dimensions.x / (layer.Value.Count + 1)), position.y - 0.5f * dimensions.y + (layer.Key) * (dimensions.y / (hiddenMap.Count + 2)), 0);
 
                 newNode.transform.localScale = Vector3.one * nodeSize;
+                newNode.isStatic = true;
+
                 drawnNodes.Add(layer.Value[i].getId(), newNode);
+                newNode.transform.parent = parentObj.transform;
             }
         }
 
@@ -92,11 +133,14 @@ public class NEATRenderer : MonoBehaviour
                 newConnection.transform.rotation = Quaternion.Euler(0,0,90-(Mathf.Atan2(drawnNodes[connection.getOutNode()].transform.position.y - drawnNodes[connection.getInNode()].transform.position.y,
                                                                                                 drawnNodes[connection.getOutNode()].transform.position.x - drawnNodes[connection.getInNode()].transform.position.x )) * Mathf.Rad2Deg * -1);
 
-                
+                newConnection.isStatic = true;
+
                 if (connection.getWeight() < 0f) {
                     newConnection.GetComponent<MeshRenderer>().material.shader = Shader.Find("Unlit/Color");
                     newConnection.GetComponent<MeshRenderer>().material.color = Color.grey;
                 }
+
+                newConnection.transform.parent = parentObj.transform;
             }
         }
     }
@@ -104,7 +148,7 @@ public class NEATRenderer : MonoBehaviour
     public static Texture2D DrawCircle(Texture2D texture, Color colour, int x, int y, int radius) {
         float rSquared = radius * radius;
 
-        for (int u = x - radius; u < x + radius + 1, u++) {
+        for (int u = x - radius; u < x + radius + 1; u++) {
             for (int v = y - radius; v < y + radius + 1; v++) {
                 if (Mathf.Pow(x-u, 2) + Mathf.Pow(y-v, 2) < rSquared) {
                     texture.SetPixel(u, v, colour);

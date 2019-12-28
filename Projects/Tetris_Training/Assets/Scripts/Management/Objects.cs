@@ -24,6 +24,7 @@ public class Objects : MonoBehaviour
     public Text linesText;
     public Text humanHIText;
     public GameObject deathMenu;
+    public GameObject networkImage;
 
     public Transform nextTetrominoHolder;
 }

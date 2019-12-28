@@ -16,8 +16,8 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 210;
-    int batchSize = 70;
+    int popSize = 200;
+    int batchSize = 100;
     int batched = 0;
     int generation = 0;
 
@@ -63,8 +63,8 @@ public class TetrisNEAT : MonoBehaviour
         }
     }
 
-    void TakeScore(int score, GameObject deadObj) {
-        scores.Add(score);
+    void TakeScore(int score, GameObject deadObj, int droppedTetros) {
+        scores.Add(score + 15 * droppedTetros);
         Destroy(deadObj);
         popIteration++;
         if (popIteration == batchSize) {
@@ -146,16 +146,18 @@ public class TetrisNEAT : MonoBehaviour
             startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, i));
         }
 
-        for (int y = 0; y < 20; y++) {
-            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
-            startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
-        }
+        startingGenome.AddConnectionMutation();
 
-        for (int y = 0; y < 20; y++) {
-            for (int x = 0; x < 10; x++) {
-                startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
-            }
-        }
+        //for (int y = 0; y < 20; y++) {
+        //    startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
+            //startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
+        //}
+
+        //for (int y = 0; y < 20; y++) {
+        //    for (int x = 0; x < 10; x++) {
+        //        startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
+        //    }
+        //}
     }
 
     public static void SaveGenome(Genome genome, string extPath) {
