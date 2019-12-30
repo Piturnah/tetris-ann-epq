@@ -18,15 +18,16 @@ public class Evaluator {
     const float c1 = 1.0f;
     const float c2 = 1.0f;
     const float c3 = 0.4f;
-    const float dt = 3.0f;
+    float dt = 2f;
     const float _MUTATION_RATE = 0.8f;
     const float _ADD_CONONECTION_RATE = 0.05f;
     const float _ADD_NODE_RATE = 0.03f;
+    const float _INTER_SPECIES_RATE = 0.01f;
 
     float highestScore;
     Genome fittestGenome;
 
-    public float EvaluateGenome(Genome genome) { // change body for other evals
+    public float EvaluateGenome(Genome genome, bool display=false) { // change body for other evals
         float[][] xorIns = new float[4][] {
             new float [] {1, 0, 0},
             new float [] {1, 0, 1},
@@ -34,16 +35,23 @@ public class Evaluator {
             new float [] {1, 1, 1}
         }; 
 
-        float[] xorOuts = new float[] {0, 1, 1, 1};
+        float[] xorOuts = new float[] {0, 1, 1, 0};
 
-        NeuralNetwork xorNet = new NeuralNetwork(genome);
+       NeuralNetwork xorNet = new NeuralNetwork(genome);
         float totCost = 0;
 
         for (int i = 0; i < 4; i++) {
-            totCost += Mathf.Pow(xorOuts[i] - xorNet.GetNNResult(xorIns[i])[0], 2);
+            float nnResult = xorNet.GetNNResult(xorIns[i])[0];
+            if (display) {
+                ConsoleLogger.Log(nnResult.ToString());
+            }
+
+            totCost += Math.Abs(xorOuts[i] - nnResult);
         }
 
-        return 1f - totCost;
+        return 4f - totCost;
+
+    //    return genome.GetConnections().Count;
     }
 
     public Evaluator(int populationSize, Genome startingGenome) {
@@ -86,9 +94,10 @@ public class Evaluator {
                 Species newSpecies = new Species(g);
                 species.Add(newSpecies);
                 speciesMap.Add(g, newSpecies);
-                ConsoleLogger.Log("new species");
             }
         }
+
+
 
         // remove dead species
         foreach (Species s in species.ToList()) {
@@ -96,6 +105,16 @@ public class Evaluator {
                 species.Remove(s);
             }
         }
+
+        if (species.Count > 11) {
+            dt += 0.04f;
+            ConsoleLogger.Log("dt: " + dt.ToString());
+        } else if (species.Count < 9) {
+            dt -= 0.04f;
+            ConsoleLogger.Log("dt: " + dt.ToString());
+        }
+        
+        ConsoleLogger.Log("No. species: " + species.Count.ToString());
 
         // evaluate genomes and assign fitness
         foreach (Genome g in genomes) {
@@ -130,6 +149,11 @@ public class Evaluator {
             Species s = GetRandomSpeciesBiasedAdjustedFitness(rand);
 
             Genome p1 = GetRandomGenomeBiasedAdjustedFitness(s, rand);
+
+            if (rand.NextDouble() < _INTER_SPECIES_RATE) {
+                s = GetRandomSpeciesBiasedAdjustedFitness(rand);
+            }
+
             Genome p2 = GetRandomGenomeBiasedAdjustedFitness(s, rand);
 
             Genome child;

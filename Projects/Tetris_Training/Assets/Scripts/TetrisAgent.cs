@@ -11,6 +11,8 @@ public class TetrisAgent : MonoBehaviour
 
     TetrisEngine engine;
     int previousInputFrame;
+    bool rendered = false;
+    EngineUI uiEngine;
 
     private void Awake() {
         engine = GetComponent<TetrisEngine>();
@@ -19,6 +21,9 @@ public class TetrisAgent : MonoBehaviour
     private void Start() {
         engine.death += GiveScore;
         if (GetComponent<EngineUI>().isActiveAndEnabled) {
+            rendered = true;
+            uiEngine = GetComponent<EngineUI>();
+
             NEATRenderer neatRenderer = new NEATRenderer();
             
             if (GameObject.Find("ParentObj(Clone)") != null) {
@@ -30,17 +35,11 @@ public class TetrisAgent : MonoBehaviour
 
             neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
         }
+        Clock.clockTick += GetOutputs;
     }
 
     void GiveScore(int score) {
         died?.Invoke(engine.score.score, gameObject, engine.dropCounter);
-    }
-
-    private void Update() {
-        if (engine.frameCounter > previousInputFrame) {
-            previousInputFrame = engine.frameCounter;
-            GetOutputs();
-        }
     }
 
     void DoMove(float[] outputs) {
@@ -89,5 +88,9 @@ public class TetrisAgent : MonoBehaviour
 
         float[] outputs = neuralNet.GetNNResult(inputField.ToArray());
         DoMove(outputs);
+
+        if (rendered) {
+            uiEngine.UpdateControllerActivations(outputs);
+        }
     }
 }

@@ -16,8 +16,8 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 200;
-    int batchSize = 100;
+    int popSize = 300;
+    int batchSize = 150;
     int batched = 0;
     int generation = 0;
 
@@ -31,7 +31,6 @@ public class TetrisNEAT : MonoBehaviour
 
     void Start()
     {
-        Time.timeScale = 2;
         eval = new Evaluator(popSize, startingGenome);
         genText.text = "Generation: " + generation.ToString("0000");
         if (!oneByOne) {
@@ -146,7 +145,10 @@ public class TetrisNEAT : MonoBehaviour
             startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, i));
         }
 
+        //startingGenome.AddConnectionGene(new ConnectionGene(221, 223, 2f, true, History.Innovate()));
+
         startingGenome.AddConnectionMutation();
+        startingGenome.AddNodeMutation();
 
         //for (int y = 0; y < 20; y++) {
         //    startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));

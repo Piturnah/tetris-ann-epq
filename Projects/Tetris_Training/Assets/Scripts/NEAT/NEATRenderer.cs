@@ -31,10 +31,6 @@ public class NEATRenderer : MonoBehaviour
             }
         }
 
-        print(sensors.Count);
-        print(outputs.Count);
-        print(hiddens.Count);
-
         Dictionary<int, GameObject> drawnNodes = new Dictionary<int, GameObject>();
 
         Texture2D network = new Texture2D(Mathf.RoundToInt(dimensions.x * 100), Mathf.RoundToInt(dimensions.y * 100));
@@ -110,7 +106,8 @@ public class NEATRenderer : MonoBehaviour
         foreach (KeyValuePair<int, List<NodeGene>> layer in hiddenMap) {
             for (int i = 0; i < layer.Value.Count; i++) {
                 GameObject newNode = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                newNode.transform.position = new Vector3(position.x - 0.5f * dimensions.x + (i + 1) * (dimensions.x / (layer.Value.Count + 1)), position.y - 0.5f * dimensions.y + (layer.Key) * (dimensions.y / (hiddenMap.Count + 2)), 0);
+                newNode.transform.position = new Vector3(position.x - 0.5f * dimensions.x + (i + 1) * (dimensions.x / (layer.Value.Count + 1)),
+                                                        position.y - 0.5f * dimensions.y + (layer.Key) * (dimensions.y / (hiddenMap.Count + 1)), 0);
 
                 newNode.transform.localScale = Vector3.one * nodeSize;
                 newNode.isStatic = true;

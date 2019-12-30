@@ -14,7 +14,7 @@ using System.Linq;
 public class TetrisEngine : MonoBehaviour
 {
     public ButtonInfo buttonInfo = new ButtonInfo();
-    const float _FRAME_RATE = 60.098813897441f;
+    //const float _FRAME_RATE = 60.098813897441f;
 
     public int[][] field = new int[10][];
     public int[][] viewField = new int[10][];
@@ -49,7 +49,7 @@ public class TetrisEngine : MonoBehaviour
 
     private void Start()
     {
-        startLevel = 15;
+        startLevel = 12;
 
         score = GetComponent<ScoreController>();
         score.level = startLevel;
@@ -62,25 +62,25 @@ public class TetrisEngine : MonoBehaviour
             previousViewField[i] = new int[22];
         }
 
+        Clock.clockTick += NextFrame;
+
         // Spawn first tetromino
         nextTetrominoIndex = UnityEngine.Random.Range(1, 8);
         SpawnTetromino(nextTetrominoIndex);
     }
-    private void Update()
-    {
-        UpdateViewField();
 
-        // Don't do these during entry delay
-        if (!are)
-        {
+    void NextFrame() {
+
+        if (!are) {
             DropTetromino();
             DAS();
         }
-        if (Time.time * _FRAME_RATE > frameCounter + 1)
-        {
-            frameCounter++;
-        }
+
+        frameCounter++;
+
         buttonInfo.dPreviousFrame = buttonInfo.dButton;
+
+        UpdateViewField();
     }
 
     // Update the view field
@@ -126,32 +126,29 @@ public class TetrisEngine : MonoBehaviour
     //Calculate DAS and do horizontal shifting
     void DAS()
     {
-        if (frameCounter >= previousDASUpdate + 1)
+        previousDASUpdate = frameCounter;
+
+        //Determine whether to reset DAS counter or to increment DAS counter
+        if ((buttonInfo.rbutton || buttonInfo.lButton) && !buttonInfo.lrPreviousFrame)
         {
-            previousDASUpdate = frameCounter;
+            buttonInfo.dasCounter = 0; // Resets counter to 0 if started inputting again after no input previous frame
+        }
+        else if ((buttonInfo.rbutton || buttonInfo.lButton) && buttonInfo.lrPreviousFrame)
+        {
+            buttonInfo.dasCounter = Mathf.Clamp(buttonInfo.dasCounter + 1, 0, 16); // Increments the counter if inputting current frame and previous frame
+        }
 
-            //Determine whether to reset DAS counter or to increment DAS counter
-            if ((buttonInfo.rbutton || buttonInfo.lButton) && !buttonInfo.lrPreviousFrame)
+        if ((buttonInfo.dasCounter == 0 || buttonInfo.dasCounter == 16) && (buttonInfo.lButton || buttonInfo.rbutton))
+        {
+            // Sets DAS counter to 10 if in quick delay mode
+            if (buttonInfo.dasCounter == 16)
             {
-                buttonInfo.dasCounter = 0; // Resets counter to 0 if started inputting again after no input previous frame
+                buttonInfo.dasCounter = 10;
             }
-            else if ((buttonInfo.rbutton || buttonInfo.lButton) && buttonInfo.lrPreviousFrame)
+            // Calls for tetromino to be shifted, indicates direction by passing bool (if true, then left)
+            if (!ShiftTetromino(buttonInfo.lButton))
             {
-                buttonInfo.dasCounter = Mathf.Clamp(buttonInfo.dasCounter + 1, 0, 16); // Increments the counter if inputting current frame and previous frame
-            }
-
-            if ((buttonInfo.dasCounter == 0 || buttonInfo.dasCounter == 16) && (buttonInfo.lButton || buttonInfo.rbutton))
-            {
-                // Sets DAS counter to 10 if in quick delay mode
-                if (buttonInfo.dasCounter == 16)
-                {
-                    buttonInfo.dasCounter = 10;
-                }
-                // Calls for tetromino to be shifted, indicates direction by passing bool (if true, then left)
-                if (!ShiftTetromino(buttonInfo.lButton))
-                {
-                    buttonInfo.dasCounter = 16;
-                }
+                buttonInfo.dasCounter = 16;
             }
         }
 
@@ -194,8 +191,8 @@ public class TetrisEngine : MonoBehaviour
     void DropTetromino()
     {
         dropCounter++;
-        bool softDroppingThisFrame = buttonInfo.dButton && Time.time >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level)) / _FRAME_RATE;
-        if (Time.time >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) / _FRAME_RATE || softDroppingThisFrame)
+        bool softDroppingThisFrame = buttonInfo.dButton && frameCounter >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level));
+        if (frameCounter >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) || softDroppingThisFrame)
         {
             if (softDroppingThisFrame)
             {
@@ -212,7 +209,7 @@ public class TetrisEngine : MonoBehaviour
                 }
             }
 
-            previousDropTime = Time.time;
+            previousDropTime = frameCounter;
             currentTetrominoPos[1]--;
             if (DetectVerticalCollisions())
             {
@@ -289,7 +286,8 @@ public class TetrisEngine : MonoBehaviour
     IEnumerator ARE(int waitFrames)
     {
         are = true;
-        yield return new WaitForSeconds(waitFrames / _FRAME_RATE);
+        int initFrame = frameCounter;
+        yield return new WaitUntil(() => (frameCounter >= initFrame + waitFrames));
         SpawnTetromino(nextTetrominoIndex);
         are = false;
     }
@@ -329,7 +327,7 @@ public class TetrisEngine : MonoBehaviour
 
     IEnumerator ClearLine(int y, int j, int minYPos)
     {
-        float timeThen = Time.time;
+        int frameThen = frameCounter;
         are = true;
         for (int i = 0; i < 5; i++)
         {
@@ -337,7 +335,8 @@ public class TetrisEngine : MonoBehaviour
             {
                 nextAnimFrame?.Invoke();
             }
-            yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE); // Time in seconds before frame counter % 4 = 0
+            //yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE);
+            yield return new WaitUntil(() => (frameCounter % 4 == 0));  // frame counter % 4 = 0
             field[i + 5][y] = 0;
             field[4 - i][y] = 0;
         }

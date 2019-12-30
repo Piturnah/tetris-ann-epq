@@ -21,6 +21,7 @@ public class EngineUI : MonoBehaviour
 
     Color unselectedCol;
     Color bgMain = new Color(0.1176471f, 0.1254902f, 0.1333333f);
+    Color highlightedColour = new Color(227 / 255f, 186 / 255f, 50 / 255f);
     Color aaaah = new Color(055f, 055f, 055f);
 
     private void Start()
@@ -53,7 +54,7 @@ public class EngineUI : MonoBehaviour
             obj.sdText.text = "SOFT: " + engine.buttonInfo.softDropCounter.ToString("00");
             obj.sdImage.fillAmount = engine.buttonInfo.softDropCounter / 16f;
 
-            UpdateControllerDisplay();
+            //UpdateControllerDisplay();
         }
 
         if (Input.GetKeyUp(KeyCode.D))
@@ -73,7 +74,7 @@ public class EngineUI : MonoBehaviour
             button.GetComponent<Image>().color = unselectedCol;
         }
 
-        Color highlightedColour = new Color(227 / 255f, 186 / 255f, 50 / 255f);
+        
         if (engine.buttonInfo.lButton)
         {
             obj.nesController.transform.Find("LEFT").GetComponent<Image>().color = highlightedColour;
@@ -94,6 +95,14 @@ public class EngineUI : MonoBehaviour
         {
             obj.nesController.transform.Find("B").GetComponent<Image>().color = highlightedColour;
         }
+    }
+
+    public void UpdateControllerActivations(float[] activations) {
+        obj.nesController.transform.Find("LEFTa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[1]);
+        obj.nesController.transform.Find("RIGHTa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[3]);
+        obj.nesController.transform.Find("DOWNa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[2]);new Color(1, 1, 1, activations[2]);
+        obj.nesController.transform.Find("Aa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[4]);new Color(1, 1, 1, activations[4]);
+        obj.nesController.transform.Find("Ba").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[5]);new Color(1, 1, 1, activations[5]);
     }
 
     void GenerateTilemap()

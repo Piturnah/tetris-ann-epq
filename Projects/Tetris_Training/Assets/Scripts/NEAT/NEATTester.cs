@@ -53,10 +53,10 @@ public class NEATTester : MonoBehaviour
         secondParent.AddConnectionGene(new ConnectionGene(1, 6, 1f, true, 10));
 
         // SIMPLE GENOME
-        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 1));
-        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 2));
-        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 3));
-        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 4));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, History.NodeInnovate()));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, History.NodeInnovate()));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, History.NodeInnovate()));
+        simpleGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, History.NodeInnovate()));
         simpleGenome.AddConnectionGene(new ConnectionGene(1, 4, -1f, true, History.Innovate()));
         simpleGenome.AddConnectionGene(new ConnectionGene(2, 4, 1f, true, History.Innovate()));
         simpleGenome.AddConnectionGene(new ConnectionGene(3, 4, 1f, true, History.Innovate()));
@@ -65,37 +65,51 @@ public class NEATTester : MonoBehaviour
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
 
-        int numToRender = 1003;
+        int numToRender = 101;
         int scale = 20;
+        NEATRenderer renderer = new NEATRenderer();
 
-       //for (int i = 1002; i < numToRender; i++) {
-       //    NEATRenderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
-       //}
+        //for (int i = 0; i < numToRender; i++) {
+        //    renderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
+        //}
 
-        SimpleTest();
+        StartCoroutine(SimpleTest());
     }
 
-    void SimpleTest() {
+    IEnumerator SimpleTest() {
         NEATRenderer neatRenderer = new NEATRenderer();
 
-        Evaluator eval = new Evaluator(120, simpleGenome);
+        Evaluator eval = new Evaluator(200, simpleGenome);
 
         int drawI = 0;
         int scale = 20;
-        for (int i = 0; i < 1000; i++) {
+        int i = 0;
+        while (i < 1000) {
             List<float> scores = new List<float>();
             foreach (Genome g in eval.genomes) {
                 scores.Add(eval.EvaluateGenome(g));
             }
+            yield return new WaitForEndOfFrame();
 
             eval.Evaluate(scores.ToArray());
-            
-            if (i % 10 == 0) {
-                neatRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
+            if (i % 2 == 0) {
+                //neatRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
+
+                TextureFromANN grapher = GetComponent<TextureFromANN>();
+                grapher.DrawTexture(grapher.TextureFromNeuralNet(new NeuralNetwork(eval.GetFittestGenome()), 101, 101));
+                
                 drawI++;
             }
+            yield return new WaitForEndOfFrame();
+
+
             print("Generation: " +i + "\nHighest fitness: "+eval.GetHighestFitness() + "\nNo. species: " + eval.GetSpeciesAmount());
-            
+            yield return new WaitForEndOfFrame();
+
+            i++;
         }
+        //neatRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
+        //eval.EvaluateGenome(eval.GetFittestGenome(), true);
+        //TetrisNEAT.SaveGenome(eval.GetFittestGenome(), "/TestGenome3.gen");
     }
 }

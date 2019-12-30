@@ -55,11 +55,11 @@ public class Genome
             {
                 if (rand.NextDouble() < _UNIFORM_PERTURBATION_P) // value adjusted
                 {
-                    connectionToMutate.SetWeight(connectionToMutate.getWeight() * ((float)rand.NextDouble() * 4f - 2f));
+                    connectionToMutate.SetWeight(connectionToMutate.getWeight() * ((float)rand.Next(5, 15) * 0.1f * Math.Sign((float)rand.NextDouble() * 2 - 1)));
                 }
                 else // new weight
                 {
-                    connectionToMutate.SetWeight((float)rand.NextDouble() * 4f - 2f);
+                    connectionToMutate.SetWeight(rand.Next(-15, 15) * 0.1f);
                 }
             }
         }
@@ -69,7 +69,7 @@ public class Genome
     {
         NodeGene node1 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
         NodeGene node2 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
-        float weight = (float)rand.NextDouble() * 2f - 1f;
+        float weight = (float)rand.Next(-15, 15) * 0.1f;
 
         if (node2.getType() == NodeGene.TYPE.SENSOR || node1.getType() == NodeGene.TYPE.OUTPUT)
         { // swap genes if sensor is output
@@ -85,7 +85,7 @@ public class Genome
 
         // check if node2 has higher distance from sensor than node1, if not then return
         // to ensure network remains purely feed-forward
-        if (node1.CalculateDstFromSensor() != 0 && node2.CalculateDstFromSensor() <= node1.CalculateDstFromSensor()) {
+        if (node1.CalculateDstFromSensor() != 0 && node2.CalculateDstFromSensor() <= node1.CalculateDstFromSensor() && node2.getType() != NodeGene.TYPE.OUTPUT) {
             AddConnectionMutation();
             return;
         }
@@ -121,7 +121,8 @@ public class Genome
 
         connection.Disable();
 
-        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, nodes.Count + 1);
+        //NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, nodes.Count + 1);
+        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, History.NodeInnovate());
         ConnectionGene inToNew = new ConnectionGene(inNode.getId(), newNode.getId(), 1f, true, History.Innovate());
         ConnectionGene newToOut = new ConnectionGene(newNode.getId(), outNode.getId(), connection.getWeight(), true, History.Innovate());
 
@@ -175,7 +176,7 @@ public class Genome
 
     public static int GetMaxSize(Genome genome1, Genome genome2)
     {
-        List<int> nodeKeys1 = genome1.GetNodes().Keys.ToList();
+        /*List<int> nodeKeys1 = genome1.GetNodes().Keys.ToList();
         for (int i = 0; i < nodeKeys1.Count; i++) {
             if (genome1.GetNodes()[nodeKeys1[i]].getType() == NodeGene.TYPE.SENSOR || genome1.GetNodes()[nodeKeys1[i]].getType() == NodeGene.TYPE.OUTPUT) {
                 nodeKeys1.Remove(i);
@@ -196,9 +197,10 @@ public class Genome
 
         List<int> connectionKeys2 = genome2.GetConnections().Keys.ToList();
         connectionKeys2.Sort();
+        */
 
-        int size1 = nodeKeys1.Count + connectionKeys1.Count;
-        int size2 = nodeKeys2.Count + connectionKeys2.Count;
+        int size1 = genome1.GetNodes().Count + genome1.GetConnections().Count;
+        int size2 = genome2.GetNodes().Count + genome2.GetConnections().Count;
 
         return Math.Max(size1, size2);
     }
@@ -222,12 +224,12 @@ public class Genome
 
         for (int i = 1; i <= minHighestInnovation; i++)
         {
-            NodeGene node1 = genome1.GetNodes()[i];
-            NodeGene node2 = genome2.GetNodes()[i];
-            if (node1 != null && node2 != null) // both exist
+            bool node1 = genome1.GetNodes().TryGetValue(i, out NodeGene value);
+            bool node2 = genome2.GetNodes().TryGetValue(i, out NodeGene value2);
+            if (node1 && node2 ) // both exist
             {
                 matchingGenes++;
-            } else if ((node1 == null) != (node2 == null)) // only one exists
+            } else if ((!node1) != (!node2)) // only one exists
             {
                 disjointGenes++;
             }
