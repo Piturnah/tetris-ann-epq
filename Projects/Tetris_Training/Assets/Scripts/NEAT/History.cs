@@ -4,7 +4,7 @@ using UnityEngine;
 public class History
 {
     public static int innovation = 0;
-    public static int nodeInnovation = 0;
+    public static int nodeInnovation = 247;
 
     public static int Innovate()
     {

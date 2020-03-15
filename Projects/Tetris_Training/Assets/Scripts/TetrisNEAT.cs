@@ -31,33 +31,46 @@ public class TetrisNEAT : MonoBehaviour
 
     void Start()
     {
-        eval = new Evaluator(popSize, startingGenome);
-        genText.text = "Generation: " + generation.ToString("0000");
-        if (!oneByOne) {
-            genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
+        if (Manager.gameType == Manager.GameType.Train) {
+            eval = new Evaluator(popSize, startingGenome);
+            genText.text = "Generation: " + generation.ToString("0000");
+            if (!oneByOne) {
+                genomeText.text = "No. species: " + eval.GetSpeciesAmount().ToString("0000");
+            }
+        }
+        if (Manager.gameType == Manager.GameType.Display) {
+            eval = new Evaluator(0, Manager.displayGenome);
         }
     }
 
     private void Update() {
-        if (oneByOne) {
-            if (!agentsPlaying) {
-                agentsPlaying = true;
-                if (popIteration < popSize) { // still in same generation
-                    runningAgent = MakeNewAgent(eval.genomes[popIteration]);
+        if (Manager.gameType == Manager.GameType.Train || Manager.gameType == Manager.GameType.Display) {
+            if (oneByOne) {
+                if (!agentsPlaying) {
+                    agentsPlaying = true;
+                    if (popIteration < popSize) { // still in same generation
+                        runningAgent = MakeNewAgent(eval.genomes[popIteration]);
 
-                    genomeText.text = "Genome: " + popIteration.ToString("0000");
+                        genomeText.text = "Genome: " + popIteration.ToString("0000");
+                    }
                 }
             }
-        } else {
-            if (!agentsPlaying) {
-                agentsPlaying = true;
-                for (int i = 0; i < batchSize; i++) {
-                    GameObject newAgent = MakeNewAgent(eval.genomes[i + batched * batchSize]);
-                    if (i == 0) {
+            else {
+                if (!agentsPlaying) {
+                    agentsPlaying = true;
+                    for (int i = 0; i < batchSize; i++) {
+                        if (Manager.gameType == Manager.GameType.Train) {
+                            GameObject newAgent = MakeNewAgent(eval.genomes[i + batched * batchSize]);
+                            if (i == 0) {
+                                newAgent.GetComponent<EngineUI>().enabled = true;
+                            }
+                        }
+                    }
+                    if (Manager.gameType == Manager.GameType.Display) {
+                        GameObject newAgent = MakeNewAgent(Manager.displayGenome);
                         newAgent.GetComponent<EngineUI>().enabled = true;
                     }
                 }
-                
             }
         }
     }
@@ -103,7 +116,9 @@ public class TetrisNEAT : MonoBehaviour
 
     public GameObject MakeNewAgent(Genome genome) {
         GameObject newAgent = Instantiate(agent, Vector3.zero, Quaternion.identity);
-        newAgent.GetComponent<TetrisAgent>().neuralNet = new NeuralNetwork(genome);
+        if (Manager.gameType == Manager.GameType.Train) {
+            newAgent.GetComponent<TetrisAgent>().neuralNet = new NeuralNetwork(genome);
+        }
 
         newAgent.GetComponent<TetrisAgent>().died += TakeScore;
 
@@ -111,55 +126,56 @@ public class TetrisNEAT : MonoBehaviour
     }
 
     private void Awake() {
+        if (Manager.gameType == Manager.GameType.Train) {
+            // add initial sensors for board
+            for (int y = 1; y < 21; y++) {
+                for (int x = 1; x < 11; x++) {
+                    startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, (y - 1) * 10 + x));
+                }
+            }
+            // add initial sensors for current tetromino
+            for (int y = 1; y < 5; y++) {
+                for (int x = 1; x < 5; x++) {
+                    startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, (y - 1) * 4 + x + 200));
+                }
+            }
+            // add initial sensor for next tetromino
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 217));
+            // add tetromino position sensor
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 218));
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 219));
+            // add initial sensor for previous frame DAS
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 220));
+            // add initial BIAS SENSOR - SHOULD ALWAYS BE SET TO 1
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 221));
 
-        // add initial sensors for board
-        for (int y = 1; y < 21; y++) {
-            for (int x = 1; x < 11; x++) {
-                startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, (y - 1) * 10 + x));
+            //add initial out nodes
+            // 222 - null
+            // 223 - left
+            // 224 - down
+            // 225 - right
+            // 226 - a
+            // 227 - b
+            for (int i = 222; i < 228; i++) {
+                startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, i));
+            }
+
+            startingGenome.AddConnectionGene(new ConnectionGene(221, 223, 2f, true, History.Innovate()));
+
+            startingGenome.AddConnectionMutation();
+            startingGenome.AddNodeMutation();
+
+            for (int y = 0; y < 20; y++) {
+                startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
+                startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
+            }
+
+            for (int y = 0; y < 20; y++) {
+                for (int x = 0; x < 10; x++) {
+                    startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
+                }
             }
         }
-        // add initial sensors for current tetromino
-        for (int y = 1; y < 5; y++) {
-            for (int x = 1; x < 5; x++) {
-                startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, (y - 1) * 4 + x + 200));
-            }
-        }
-        // add initial sensor for next tetromino
-        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 217));
-        // add tetromino position sensor
-        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 218));
-        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 219));
-        // add initial sensor for previous frame DAS
-        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 220));
-        // add initial BIAS SENSOR - SHOULD ALWAYS BE SET TO 1
-        startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 221));
-
-        //add initial out nodes
-        // 222 - null
-        // 223 - left
-        // 224 - down
-        // 225 - right
-        // 226 - a
-        // 227 - b
-        for (int i = 222; i < 228; i++) {
-            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, i));
-        }
-
-        //startingGenome.AddConnectionGene(new ConnectionGene(221, 223, 2f, true, History.Innovate()));
-
-        startingGenome.AddConnectionMutation();
-        startingGenome.AddNodeMutation();
-
-        //for (int y = 0; y < 20; y++) {
-        //    startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
-            //startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
-        //}
-
-        //for (int y = 0; y < 20; y++) {
-        //    for (int x = 0; x < 10; x++) {
-        //        startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
-        //    }
-        //}
     }
 
     public static void SaveGenome(Genome genome, string extPath) {
@@ -172,8 +188,8 @@ public class TetrisNEAT : MonoBehaviour
         stream.Close();
     }
 
-    public static Genome OpenGenome(string extPath) {
-        string path = Application.persistentDataPath + "/" + extPath;
+    public static Genome OpenGenome(string extPath, bool usingExtPath = true) {
+        string path = (usingExtPath) ? Application.persistentDataPath + "/" + extPath : extPath;
 
         if (File.Exists(path)) {
             BinaryFormatter formatter = new BinaryFormatter();

@@ -10,7 +10,7 @@ public class Clock : MonoBehaviour
     float timeMultiplier = 1;
 
     private void Start() {
-        Time.timeScale = 10;
+        Time.timeScale = 1;
         StartCoroutine(ClockTicker());
     }
 

@@ -33,9 +33,12 @@ public class TetrisAgent : MonoBehaviour
                 Destroy(GameObject.Find("ParentObj"));
             }
 
-            neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
+            //neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
         }
         Clock.clockTick += GetOutputs;
+        if (Manager.gameType == Manager.GameType.Display) {
+            neuralNet = new NeuralNetwork(Manager.displayGenome);
+        }
     }
 
     void GiveScore(int score) {

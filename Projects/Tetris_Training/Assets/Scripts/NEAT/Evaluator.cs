@@ -56,9 +56,14 @@ public class Evaluator {
 
     public Evaluator(int populationSize, Genome startingGenome) {
         this.populationSize = populationSize;
-        genomes = new List<Genome>(populationSize);
-        for (int i = 0; i < populationSize; i++) {
-            genomes.Add(new Genome(startingGenome));
+        if (Manager.gameType == Manager.GameType.Train) {
+            genomes = new List<Genome>(populationSize);
+            for (int i = 0; i < populationSize; i++) {
+                genomes.Add(new Genome(startingGenome));
+            }
+        }
+        else if (Manager.gameType == Manager.GameType.Display) {
+            genomes = new List<Genome>() { startingGenome };
         }
         nextGenGenomes = new List<Genome>(populationSize);
         speciesMap = new Dictionary<Genome, Species>();

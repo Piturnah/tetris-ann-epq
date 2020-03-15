@@ -33,7 +33,10 @@ public class EngineUI : MonoBehaviour
         obj.scoreText = GameObject.Find("Score").GetComponent<Text>();
         GenerateTilemap();
 
-        //engine.death += OnDeath;
+        if (Manager.gameType == Manager.GameType.Human || Manager.gameType == Manager.GameType.Display) {
+            engine.death += OnDeath;
+        }
+
         engine.nextAnimFrame += Flash;
         engine.tetrominoSpawned += UpdateTetrominoHolder;
         UpdateTetrominoHolder();

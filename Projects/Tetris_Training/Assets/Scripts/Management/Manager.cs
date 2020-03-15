@@ -10,13 +10,28 @@ public class Manager : MonoBehaviour
     static GameObject manager = null;
     [HideInInspector] public int startLevel;
     public GameObject humanIO;
-    public static int gameMode;
+    //public static int gameMode;
     string savePath;
     public static int humanHiScoreVal;
+    public enum GameType {Human, Train, Display};
+    public static GameType gameType;
+    public static Genome displayGenome;
 
     public void HumanPlay(int startLevelVal)
     {
         startLevel = startLevelVal;
+        gameType = GameType.Human;
+        SceneManager.LoadScene(1);
+    }
+    public void StartTraining(int startLevelVal) {
+        startLevel = startLevelVal;
+        gameType = GameType.Train;
+        SceneManager.LoadScene(1);
+    }
+    public void AIPlay(int startLevelVal, Genome genome) {
+        startLevel = startLevelVal;
+        gameType = GameType.Display;
+        displayGenome = genome;
         SceneManager.LoadScene(1);
     }
 
@@ -37,7 +52,7 @@ public class Manager : MonoBehaviour
         savePath = Application.persistentDataPath;
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += OnSceneLoaded;
-        //TetrisEngine.death += OnDeath;
+        
         humanHiScoreVal = GetHumanHiScore();
 
     }
@@ -52,15 +67,17 @@ public class Manager : MonoBehaviour
         if (scene.name == "Main")
         {
             humanHiScoreVal = GetHumanHiScore();
-            gameMode = 0;
-            HumanIO newHuman = Instantiate(humanIO, Vector3.zero, Quaternion.identity).GetComponent<HumanIO>();
-            newHuman.GetComponent<TetrisEngine>().startLevel = startLevel;
+            if (gameType == GameType.Human) {
+                HumanIO newHuman = Instantiate(humanIO, Vector3.zero, Quaternion.identity).GetComponent<HumanIO>();
+                newHuman.GetComponent<TetrisEngine>().startLevel = startLevel;
+                newHuman.GetComponent<TetrisEngine>().death += OnDeath;
+            }
         }
     }
 
-    void OnDeath(int score, GameObject engine) // called when any tetris engine dies
+    void OnDeath(int score) // called when any tetris engine dies
     {
-        if (gameMode == 0) // human is playing
+        if (gameType == GameType.Human) // human is playing
         {
             if (humanHiScoreVal < score)
             {

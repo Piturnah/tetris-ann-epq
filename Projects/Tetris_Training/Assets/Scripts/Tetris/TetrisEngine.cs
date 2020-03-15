@@ -49,7 +49,7 @@ public class TetrisEngine : MonoBehaviour
 
     private void Start()
     {
-        startLevel = 12;
+        //startLevel = 12;
 
         score = GetComponent<ScoreController>();
         score.level = startLevel;

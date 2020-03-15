@@ -65,15 +65,15 @@ public class NEATTester : MonoBehaviour
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
 
-        int numToRender = 101;
+        int numToRender = 1003;
         int scale = 20;
         NEATRenderer renderer = new NEATRenderer();
 
-        //for (int i = 0; i < numToRender; i++) {
-        //    renderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
-        //}
+        for (int i = 1002; i < numToRender; i++) {
+            renderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
+        }
 
-        StartCoroutine(SimpleTest());
+        //StartCoroutine(SimpleTest());
     }
 
     IEnumerator SimpleTest() {
