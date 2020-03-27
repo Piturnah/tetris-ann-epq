@@ -63,15 +63,7 @@ public class NEATRenderer : MonoBehaviour
 
             drawnNodes.Add(i + 1, newNode);
             newNode.transform.parent = parentObj.transform;
-
-            //network = DrawCircle(network, Color.black, 
-            //        Mathf.RoundToInt(0),
-            //        Mathf.RoundToInt(0),
-            //        10);
-            //print("drew thing");
         }
-
-        //GameObject.FindGameObjectWithTag("Canvas").transform.GetChild(0).GetComponent<RawImage>().texture = network;
     
         network.Apply();
 

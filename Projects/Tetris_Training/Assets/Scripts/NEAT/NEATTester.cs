@@ -12,6 +12,7 @@ public class NEATTester : MonoBehaviour
 
     void Start()
     {
+        History.nodeInnovation = 0;
         // FIRST PARENT
         firstParent.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 1));
         firstParent.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, 2));
@@ -69,7 +70,7 @@ public class NEATTester : MonoBehaviour
         int scale = 20;
         NEATRenderer renderer = new NEATRenderer();
 
-        for (int i = 1002; i < numToRender; i++) {
+        for (int i = 0; i < numToRender; i+=100) {
             renderer.DrawGenome(TetrisNEAT.OpenGenome("/"+i+".tetro"), new Vector3((scale+1) * (i+1), 0, 0), Vector2.one * scale);
         }
 
