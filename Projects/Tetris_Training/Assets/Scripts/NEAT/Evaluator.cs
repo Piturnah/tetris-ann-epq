@@ -17,8 +17,8 @@ public class Evaluator {
 
     const float c1 = 1.0f;
     const float c2 = 1.0f;
-    const float c3 = 0.4f;
-    float dt = 0.001f;
+    const float c3 = 2.0f;
+    float dt = 3.0f;
     const float _MUTATION_RATE = 0.8f;
     const float _ADD_CONONECTION_RATE = 0.05f;
     const float _ADD_NODE_RATE = 0.03f;
@@ -27,7 +27,7 @@ public class Evaluator {
     float highestScore;
     Genome fittestGenome;
 
-    public float EvaluateGenome(Genome genome, bool display=false) { // change body for other evals
+ /*   public float EvaluateGenome(Genome genome, bool display=false) { // change body for other evals
         float[][] xorIns = new float[4][] {
             new float [] {1, 0, 0},
             new float [] {1, 0, 1},
@@ -52,7 +52,7 @@ public class Evaluator {
         return 4f - totCost;
 
     //    return genome.GetConnections().Count;
-    }
+    }*/
 
     public Evaluator(int populationSize, Genome startingGenome) {
         this.populationSize = populationSize;
@@ -112,10 +112,10 @@ public class Evaluator {
         }
 
         if (species.Count > 11) {
-            dt = dt * 1.05f;
+            dt += 0.3f;
             ConsoleLogger.Log("dt: " + dt.ToString());
         } else if (species.Count < 9) {
-            dt = dt * 0.95f;
+            dt -= 0.3f;
             ConsoleLogger.Log("dt: " + dt.ToString());
         }
         

@@ -16,8 +16,8 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 1000;
-    int batchSize = 150;
+    int popSize = 512;
+    int batchSize = 100;
     int batched = 0;
     int generation = 0;
 
@@ -153,7 +153,18 @@ public class TetrisNEAT : MonoBehaviour
 
     private void Awake() {
         if (Manager.gameType == Manager.GameType.Train) {
-            // add initial sensors for board
+            // add initial sensors
+            for (int i = 1; i < 5; i++) {
+                startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, i));
+            }
+            // add out node
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 5));
+
+            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 6));
+
+            startingGenome.AddConnectionMutation();
+
+            /*// add initial sensors for board
             for (int y = 1; y < 21; y++) {
                 for (int x = 1; x < 11; x++) {
                     startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.SENSOR, (y - 1) * 10 + x));
@@ -194,7 +205,7 @@ public class TetrisNEAT : MonoBehaviour
             for (int y = 0; y < 20; y++) {
                 startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 228 + y));
                 startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
-            }
+            }*/
 
 /*            for (int y = 0; y < 20; y++) {
                 for (int x = 0; x < 10; x++) {

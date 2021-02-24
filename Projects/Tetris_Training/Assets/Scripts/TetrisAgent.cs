@@ -14,6 +14,8 @@ public class TetrisAgent : MonoBehaviour
     bool rendered = false;
     EngineUI uiEngine;
 
+    float[] weights = new float[44400];
+
     private void Awake() {
         engine = GetComponent<TetrisEngine>();
     }
@@ -36,6 +38,7 @@ public class TetrisAgent : MonoBehaviour
             //neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
         }
         Clock.clockTick += GetOutputs;
+        GetHyperWeights();
         if (Manager.gameType == Manager.GameType.Display) {
             neuralNet = new NeuralNetwork(Manager.displayGenome);
         }
@@ -70,31 +73,106 @@ public class TetrisAgent : MonoBehaviour
         }
     }
 
-    void GetOutputs() {
-        // add field
-        List<float> inputField = new List<float>();
-        for (int x = 0; x < 10; x++) {
-            for (int y = 0; y < 20; y++) {
-                inputField.Add(engine.field[x][y]);
+    void GetHyperWeights() {
+        //Loop tetromino state
+        for (int x1 = 0; x1 < 4; x1++) {
+            for (int y1 = 0; y1 < 4; y1++) {
+                //Loop tetromino position
+                for (int x2 = 0; x2 < 10; x2++) {
+                    for (int y2 = 0; y2 < 20; y2++) {
+                        weights[y2 * 160 + x2 * 16 + y1 * 4 + x1] = neuralNet.GetNNResult(new float[] { Mathf.Lerp(-1f, 1f, x1/3f), Mathf.Lerp(-1f, 1f, y1 / 3f), Mathf.Lerp(-1f, 1f, x2 / 9f), Mathf.Lerp(-1f, 1f, y2 / 19f) });
+                    }
+                }
             }
         }
-        // add tetromino state
-        for (int x = 0; x < 4; x++) {
-            for (int y = 0; y < 4; y++) {
-                inputField.Add(engine.currentTetrominoState[x, y]);
+        //Loop tetromino position
+        for (int x1 = 0; x1 < 10; x1++) {
+            for (int y1 = 0; y1 < 20; y1++) {
+                //Loop gameboard cells
+                for (int x2 = 0; x2 < 10; x2++) {
+                    for (int y2 = 0; y2 < 20; y2++) {
+                        weights[3200 + y2 * 2000 + x2 * 200 + y1 * 10 + x1] = neuralNet.GetNNResult(new float[] { Mathf.Lerp(-1f, 1f, x1 / 9f), Mathf.Lerp(-1f, 1f, y1 / 19f), Mathf.Lerp(-1f, 1f, x2 / 9f), Mathf.Lerp(-1f, 1f, y2 / 19f) });
+                    }
+                }
             }
         }
-        // add next tetromino index
-        inputField.Add(engine.nextTetrominoIndex);
-        // add tetromino position
-        inputField.Add(engine.currentTetrominoPos[0]);
-        inputField.Add(engine.currentTetrominoPos[1]);
-        // add lr prev frame info
-        inputField.Add((engine.buttonInfo.lrPreviousFrame)?1:0);
-        // add bias
-        inputField.Add(1f);
+        //Loop gameboard cells
+        for (int x1 = 0; x1 < 10; x1++) {
+            for (int y1 = 0; y1 < 10; y1++) {
+                //Loop outputs
+                for (int x2 = 0; x2 < 3; x2++) {
+                    for (int y2 = 0; y2 < 2; y2++) {
+                        weights[43200 + y2 * 300 + x2 * 100 + y1 * 10 + x1] = neuralNet.GetNNResult(new float[] { Mathf.Lerp(-1f, 1f, x1 / 9f), Mathf.Lerp(-1f, 1f, y1 / 19f), Mathf.Lerp(-1f, 1f, x2 / 2f), Mathf.Lerp(-1f, 1f, y2 / 1f) });
+                    }
+                }
+            }
+        }
+    }
 
-        float[] outputs = neuralNet.GetNNResult(inputField.ToArray());
+    void GetOutputs() {
+        //Layer One
+        float[,] layerOne = new float[10, 20];
+        int x2 = engine.currentTetrominoPos[0]; int y2 = engine.currentTetrominoPos[1];
+        for (int x1 = 0; x1 < 4; x1++) {
+            for (int y1 = 0; y1 < 4; y1++) {
+                try {
+                    layerOne[x2, y2] += weights[y2 * 160 + x2 * 16 + y1 * 4 + x1] * (engine.currentTetrominoState[x1, y1] / 16f);
+                } catch {
+                    continue;
+                }
+            }
+        }
+
+        //Layer Two
+        float[,] layerTwo = new float[10, 20];
+        for (int x1 = 0; x1 < 10; x1++) {
+            for (int y1 = 0; y1 < 20; y1++) {
+                try {
+                    layerTwo[x1, x1] += weights[3200 + y1 * 2000 + x1 * 200 + y2 * 10 + x2] * ((layerOne[x2, y2] * engine.field[x1][y1]) / 200f);
+                } catch {
+                    continue;
+                }
+                
+                //Debug.Log(layerTwo[x1, y1]);
+            }
+        }
+
+        //Layer Three
+        float[,] layerThree = new float[3, 2];
+        for (int x1 = 0; x1 < 10; x1++) {
+            for (int y1 = 0; y1 < 20; y1++) {
+                for (x2 = 0; x2 < 3; x2++) {
+                    for (y2 = 0; y2 < 2; y2++) {
+                        layerThree[x2, y2] += weights[43200 + y2 * 300 + x2 * 100 + y1 * 10 + x1] * (layerTwo[x1, y1] / 200f);
+                    }
+                }
+            }
+        }
+
+        /*        // add field
+                List<float> inputField = new List<float>();
+                for (int x = 0; x < 10; x++) {
+                    for (int y = 0; y < 20; y++) {
+                        inputField.Add(engine.field[x][y]);
+                    }
+                }
+                // add tetromino state
+                for (int x = 0; x < 4; x++) {
+                    for (int y = 0; y < 4; y++) {
+                        inputField.Add(engine.currentTetrominoState[x, y]);
+                    }
+                }
+                // add next tetromino index
+                inputField.Add(engine.nextTetrominoIndex);
+                // add tetromino position
+                inputField.Add(engine.currentTetrominoPos[0]);
+                inputField.Add(engine.currentTetrominoPos[1]);
+                // add lr prev frame info
+                inputField.Add((engine.buttonInfo.lrPreviousFrame)?1:0);
+                // add bias
+                inputField.Add(1f);*/
+
+        float[] outputs = new float[] { layerThree[1, 0], layerThree[0, 0], layerThree[1, 1], layerThree[2, 0], layerThree[0, 1], layerThree[2, 1] };
         DoMove(outputs);
 
         if (rendered) {

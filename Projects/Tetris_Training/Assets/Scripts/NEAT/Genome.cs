@@ -122,7 +122,16 @@ public class Genome
         connection.Disable();
 
         //NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, nodes.Count + 1);
-        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, History.NodeInnovate());
+        NodeGene.ACTIVATION activation = NodeGene.ACTIVATION.SIGMOID;
+        switch (rand.Next(3)) {
+            case 0: activation = NodeGene.ACTIVATION.SIGMOID;
+                break;
+            case 1: activation = NodeGene.ACTIVATION.SINE;
+                break;
+            case 2: activation = NodeGene.ACTIVATION.COSINE;
+                break;
+        }
+        NodeGene newNode = new NodeGene(NodeGene.TYPE.HIDDEN, History.NodeInnovate(), activation);
         ConnectionGene inToNew = new ConnectionGene(inNode.getId(), newNode.getId(), 1f, true, History.Innovate());
         ConnectionGene newToOut = new ConnectionGene(newNode.getId(), outNode.getId(), connection.getWeight(), true, History.Innovate());
 

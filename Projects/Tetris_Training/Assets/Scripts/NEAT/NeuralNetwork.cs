@@ -9,17 +9,17 @@ public class NeuralNetwork
         this.genome = genome;
     }
 
-    public float[] GetNNResult(float[] inputs) {
-        List<float> outputActivations = new List<float>();
+    public float GetNNResult(float[] inputs) {
+        float outputActivation = 0;
 
         foreach (NodeGene node in genome.GetNodes().Values) {
             if (node.getType() == NodeGene.TYPE.OUTPUT) {
-                outputActivations.Add(node.GetActivation(inputs));
+                outputActivation = node.GetActivation(inputs);
             }
         }
 
         genome.ResetNodeActivity();
 
-        return outputActivations.ToArray();
+        return outputActivation;
     }
 }

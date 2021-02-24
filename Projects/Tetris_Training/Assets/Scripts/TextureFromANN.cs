@@ -17,7 +17,7 @@ public class TextureFromANN : MonoBehaviour
         rend.transform.localScale = new Vector3(texture.width, 1, texture.height);
     }
 
-    public Texture2D TextureFromNeuralNet (NeuralNetwork neuralNet, int width, int height) {
+/*    public Texture2D TextureFromNeuralNet (NeuralNetwork neuralNet, int width, int height) {
 
         Color[] colourMap = new Color[width * height];
         for (int y = 0; y < height; y++) {
@@ -29,7 +29,7 @@ public class TextureFromANN : MonoBehaviour
         }
 
         return TextureFromColourMap(colourMap, width, height);
-    }
+    }*/
 
     public Texture2D TextureFromColourMap (Color[] colourMap, int width, int height) {
         Texture2D texture = new Texture2D(width, height);

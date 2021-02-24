@@ -89,7 +89,7 @@ public class NEATTester : MonoBehaviour
         while (i < 1000) {
             List<float> scores = new List<float>();
             foreach (Genome g in eval.genomes) {
-                scores.Add(eval.EvaluateGenome(g));
+                //scores.Add(eval.EvaluateGenome(g));
             }
             yield return new WaitForEndOfFrame();
 
@@ -98,7 +98,7 @@ public class NEATTester : MonoBehaviour
                 //neatRenderer.DrawGenome(eval.GetFittestGenome(), new Vector3((scale+1) * (drawI+1), 0, 0), Vector2.one * scale);
 
                 TextureFromANN grapher = GetComponent<TextureFromANN>();
-                grapher.DrawTexture(grapher.TextureFromNeuralNet(new NeuralNetwork(eval.GetFittestGenome()), 101, 101));
+                //grapher.DrawTexture(grapher.TextureFromNeuralNet(new NeuralNetwork(eval.GetFittestGenome()), 101, 101));
                 
                 drawI++;
             }
