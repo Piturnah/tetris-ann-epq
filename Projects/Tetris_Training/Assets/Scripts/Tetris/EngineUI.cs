@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using Unity.Mathematics;
 
 
 /*
@@ -98,6 +99,13 @@ public class EngineUI : MonoBehaviour
     }
 
     public void UpdateControllerActivations(float[] activations) {
+        float activationsSum = 0;
+        foreach (float f in activations) {
+            activationsSum += f;
+        }
+        for (int i = 0; i < activations.Length; i++) {
+            activations[i] = activations[i] / activationsSum;
+        }
         obj.nesController.transform.Find("LEFTa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[1]);
         obj.nesController.transform.Find("RIGHTa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[3]);
         obj.nesController.transform.Find("DOWNa").GetComponent<Image>().color = Color.Lerp(unselectedCol, highlightedColour, activations[2]);new Color(1, 1, 1, activations[2]);

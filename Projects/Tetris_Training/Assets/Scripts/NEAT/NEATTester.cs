@@ -66,7 +66,7 @@ public class NEATTester : MonoBehaviour
         
         Genome offspringGenome = Genome.Crossover(secondParent, firstParent);
 
-        int numToRender = 17;
+        int numToRender = 80;
         int scale = 20;
         NEATRenderer renderer = new NEATRenderer();
 
