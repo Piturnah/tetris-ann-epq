@@ -44,12 +44,13 @@ public class TetrisNEAT : MonoBehaviour
             }
         }
         if (Manager.gameType == Manager.GameType.Display) {
-            eval = new Evaluator(0, Manager.displayGenome);
+            GameObject newAgent = MakeNewAgent(Manager.displayGenome);
+            newAgent.GetComponent<EngineUI>().enabled = true;
         }
     }
 
     private void Update() {
-        if (Manager.gameType == Manager.GameType.Train || Manager.gameType == Manager.GameType.Display) {
+        if (Manager.gameType == Manager.GameType.Train) { // || Manager.gameType == Manager.GameType.Display) {
             if (oneByOne) {
                 if (!agentsPlaying) {
                     agentsPlaying = true;

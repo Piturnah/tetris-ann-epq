@@ -16,13 +16,18 @@ public class TetrisAgent : MonoBehaviour
     bool rendered = false;
     EngineUI uiEngine;
 
-    float[] weights = new float[44400];
+    float[] weights;
 
     private void Awake() {
         engine = GetComponent<TetrisEngine>();
     }
 
     private void Start() {
+        if (Manager.gameType == Manager.GameType.Display) {
+            neuralNet = new NeuralNetwork(Manager.displayGenome);
+        }
+        weights = new float[44400];
+        GetHyperWeights();
         engine.death += GiveScore;
         if (GetComponent<EngineUI>().isActiveAndEnabled) {
             rendered = true;
@@ -40,10 +45,7 @@ public class TetrisAgent : MonoBehaviour
             //neatRenderer.DrawGenome(neuralNet.genome, new Vector3 (16, 8.2f, 0), new Vector2(11,12f));
         }
         Clock.clockTick += GetOutputs;
-        GetHyperWeights();
-        if (Manager.gameType == Manager.GameType.Display) {
-            neuralNet = new NeuralNetwork(Manager.displayGenome);
-        }
+
     }
 
     private void OnDestroy() {
