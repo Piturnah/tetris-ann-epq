@@ -42,7 +42,6 @@ public class EngineUI : MonoBehaviour
         UpdateTetrominoHolder();
 
         unselectedCol = obj.nesController.transform.Find("MID").GetComponent<Image>().color;
-        //obj.humanHIText.text = "Human HI: " + Manager.humanHiScoreVal.ToString("000000");
     }
     private void Update()
     {
@@ -56,8 +55,6 @@ public class EngineUI : MonoBehaviour
             obj.lockPosTxt.text = "LOCK: " + yLock.ToString("00");
             obj.sdText.text = "SOFT: " + engine.buttonInfo.softDropCounter.ToString("00");
             obj.sdImage.fillAmount = engine.buttonInfo.softDropCounter / 16f;
-
-            //UpdateControllerDisplay();
         }
 
         if (Input.GetKeyUp(KeyCode.D))

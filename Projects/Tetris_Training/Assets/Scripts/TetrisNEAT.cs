@@ -16,13 +16,18 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 300;
+    int popSize = 1000;
     int batchSize = 150;
     int batched = 0;
     int generation = 0;
 
     int popIteration = 0;
     int highScore = 0;
+
+    int noAgentsPlaying = 0;
+    int noAgentsInGen = 0;
+
+    bool displayAlive = false;
 
     bool agentsPlaying = false;
     bool oneByOne = false;
@@ -49,20 +54,32 @@ public class TetrisNEAT : MonoBehaviour
                 if (!agentsPlaying) {
                     agentsPlaying = true;
                     if (popIteration < popSize) { // still in same generation
+                        noAgentsInGen++;
+
                         runningAgent = MakeNewAgent(eval.genomes[popIteration]);
+                        runningAgent.GetComponent<EngineUI>().enabled = true;
 
                         genomeText.text = "Genome: " + popIteration.ToString("0000");
                     }
                 }
             }
             else {
-                if (!agentsPlaying) {
+                if (noAgentsPlaying < batchSize) {
                     agentsPlaying = true;
-                    for (int i = 0; i < batchSize; i++) {
+                    for (int i = noAgentsPlaying; i < batchSize; i++) {
+                        noAgentsInGen++;
+                        if (noAgentsInGen > popSize) {
+                            break;
+                        }
                         if (Manager.gameType == Manager.GameType.Train) {
-                            GameObject newAgent = MakeNewAgent(eval.genomes[i + batched * batchSize]);
-                            if (i == 0) {
+                            noAgentsPlaying++;
+
+                            //Debug.Log(noAgentsInGen);
+                            GameObject newAgent = MakeNewAgent(eval.genomes[noAgentsInGen-1]);
+                            
+                            if (!displayAlive) {
                                 newAgent.GetComponent<EngineUI>().enabled = true;
+                                displayAlive = true;
                             }
                         }
                     }
@@ -76,22 +93,31 @@ public class TetrisNEAT : MonoBehaviour
     }
 
     void TakeScore(int score, GameObject deadObj, int droppedTetros) {
-        scores.Add(score + 15 * droppedTetros);
+        if (deadObj.GetComponent<EngineUI>().enabled) {
+            displayAlive = false;
+        }
+
+        noAgentsPlaying--;
+        //Debug.Log(noAgentsPlaying);
+        scores.Add(score + 30 * droppedTetros);
         Destroy(deadObj);
         popIteration++;
-        if (popIteration == batchSize) {
+        if (noAgentsPlaying == 0) {
             batched++;
             agentsPlaying = false;
-            
-            
 
-            if (popIteration * batched == popSize) {
+            noAgentsInGen = 0;
+            generation++;
+
+            eval.Evaluate(scores.ToArray().Select(x => (float)x).ToArray()); // evaluate and breed current genomes
+
+            SaveGenome(eval.GetFittestGenome(), "/" + generation.ToString() + ".tetro");
+
+            if (noAgentsInGen == popSize) {
                 batched = 0;
-                eval.Evaluate(scores.ToArray().Select(x => (float)x).ToArray()); // evaluate and breed current genomes
-            
-                SaveGenome(eval.GetFittestGenome(), "/" + generation.ToString() + ".tetro");
 
-                generation++;
+
+
             }
             popIteration = 0;
 
@@ -170,17 +196,17 @@ public class TetrisNEAT : MonoBehaviour
                 startingGenome.AddConnectionGene(new ConnectionGene(228 + y, Random.Range(222, 228), Random.Range(-2f, 2f), true, History.Innovate()));
             }
 
-            for (int y = 0; y < 20; y++) {
+/*            for (int y = 0; y < 20; y++) {
                 for (int x = 0; x < 10; x++) {
                     startingGenome.AddConnectionGene(new ConnectionGene(y * 10 + x + 1, 228 + y, Random.Range(0.5f, 2f), true, History.Innovate()));
                 }
-            }
+            }*/
         }
     }
 
     public static void SaveGenome(Genome genome, string extPath) {
         BinaryFormatter formatter = new BinaryFormatter();
-        string path = Application.persistentDataPath + "/" + extPath;
+        string path = Application.persistentDataPath + "/new/" + extPath;
 
         FileStream stream = new FileStream(path, FileMode.Create);
 

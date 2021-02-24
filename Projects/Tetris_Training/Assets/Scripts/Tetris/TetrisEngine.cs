@@ -14,7 +14,6 @@ using System.Linq;
 public class TetrisEngine : MonoBehaviour
 {
     public ButtonInfo buttonInfo = new ButtonInfo();
-    //const float _FRAME_RATE = 60.098813897441f;
 
     public int[][] field = new int[10][];
     public int[][] viewField = new int[10][];
@@ -49,7 +48,7 @@ public class TetrisEngine : MonoBehaviour
 
     private void Start()
     {
-        //startLevel = 12;
+        startLevel = 18;
 
         score = GetComponent<ScoreController>();
         score.level = startLevel;
@@ -71,7 +70,7 @@ public class TetrisEngine : MonoBehaviour
 
     void NextFrame() {
 
-        if (!are) {
+        if (!are) { //ARE / entry delay / is the frames after a piece locks where the game makes no action
             DropTetromino();
             DAS();
         }
@@ -190,7 +189,7 @@ public class TetrisEngine : MonoBehaviour
     // Drops the tetromino by one gridcell if the necessary time has passed
     void DropTetromino()
     {
-        dropCounter++;
+        dropCounter++;  //total number of drops is counted as it may be useful to interfacing agents for fitness evaluation
         bool softDroppingThisFrame = buttonInfo.dButton && frameCounter >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level));
         if (frameCounter >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) || softDroppingThisFrame)
         {
@@ -248,10 +247,16 @@ public class TetrisEngine : MonoBehaviour
                 if (currentTetrominoState[x,y] == 0) {
                     continue;
                 }
-                if (currentTetrominoPos[1] + y < 0 || currentTetrominoPos[1] + y > 19 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0)
-                {
-                    return true;
+                try {
+                    if (currentTetrominoPos[1] + y < 0 || currentTetrominoPos[1] + y > 19 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0) {
+                        return true;
+                    }
+                } catch {
+                    death?.Invoke(score.score); // this engine dies
+                    dead = true;
+                    buttonInfo.Reset();
                 }
+
             }
         }
         return false;
@@ -448,6 +453,10 @@ public class TetrisEngine : MonoBehaviour
         }
 
         return dest;
+    }
+
+    private void OnDestroy() {
+        Clock.clockTick -= NextFrame;
     }
 
     // Class to store info about the buttons being "pressed"

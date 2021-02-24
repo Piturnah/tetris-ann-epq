@@ -39,6 +39,10 @@ public class TileRenderer : MonoBehaviour
         }
     }
 
+    private void OnDestroy() {
+        engine.updateField -= UpdateAppearance;
+    }
+
     void UpdateAppearance()
     {
         appearance.enabled = (engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] != 0);

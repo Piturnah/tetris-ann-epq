@@ -18,7 +18,7 @@ public class Evaluator {
     const float c1 = 1.0f;
     const float c2 = 1.0f;
     const float c3 = 0.4f;
-    float dt = 2f;
+    float dt = 0.001f;
     const float _MUTATION_RATE = 0.8f;
     const float _ADD_CONONECTION_RATE = 0.05f;
     const float _ADD_NODE_RATE = 0.03f;
@@ -112,10 +112,10 @@ public class Evaluator {
         }
 
         if (species.Count > 11) {
-            dt += 0.04f;
+            dt = dt * 1.05f;
             ConsoleLogger.Log("dt: " + dt.ToString());
         } else if (species.Count < 9) {
-            dt -= 0.04f;
+            dt = dt * 0.95f;
             ConsoleLogger.Log("dt: " + dt.ToString());
         }
         

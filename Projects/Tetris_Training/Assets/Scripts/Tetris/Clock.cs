@@ -9,16 +9,24 @@ public class Clock : MonoBehaviour
     float _FRAME_RATE = 60.098813897441f;
     float timeMultiplier = 1;
 
+    float lastCheckTime = 0;
+
     private void Start() {
         Time.timeScale = 1;
-        StartCoroutine(ClockTicker());
+        //StartCoroutine(ClockTicker());
     }
 
-    IEnumerator ClockTicker() {
-        while (true) {
-            //yield return new WaitForSeconds((1f/20)/_FRAME_RATE);
-            yield return new WaitForSeconds((1/timeMultiplier)/_FRAME_RATE);
+    private void Update() {
+        if (Time.time >= lastCheckTime + (1 / timeMultiplier) / _FRAME_RATE) {
+            lastCheckTime = Time.time;
             clockTick?.Invoke();
         }
     }
+
+/*    IEnumerator ClockTicker() {
+        while (true) {
+            yield return new WaitForSeconds((1/timeMultiplier)/_FRAME_RATE);
+            clockTick?.Invoke();
+        }
+    }*/
 }

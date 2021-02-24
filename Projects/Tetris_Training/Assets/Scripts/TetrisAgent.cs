@@ -41,6 +41,11 @@ public class TetrisAgent : MonoBehaviour
         }
     }
 
+    private void OnDestroy() {
+        Clock.clockTick -= GetOutputs;
+        engine.death -= GiveScore;
+    }
+
     void GiveScore(int score) {
         died?.Invoke(engine.score.score, gameObject, engine.dropCounter);
     }
