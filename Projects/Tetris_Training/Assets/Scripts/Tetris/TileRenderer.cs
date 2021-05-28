@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TileRenderer : MonoBehaviour
 {
@@ -43,16 +41,14 @@ public class TileRenderer : MonoBehaviour
         engine.updateField -= UpdateAppearance;
     }
 
-    void UpdateAppearance()
-    {
-        appearance.enabled = (engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] != 0);
-        UpdateColour();
-    }
+    void UpdateAppearance() {
 
-    void UpdateColour()
-    {
-        if (appearance.enabled)
-        {
+        appearance.enabled = engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] != -1;
+        if (appearance.enabled) {
+            if (engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] == 0) {
+                appearance.material.color = Color.red;
+                return;
+            }
             appearance.material.color = palettes.palette[engine.viewField[Mathf.RoundToInt(transform.position.x)][Mathf.RoundToInt(transform.position.y)] - 1][engine.score.level % palettes.palette[0].Length];
         }
     }

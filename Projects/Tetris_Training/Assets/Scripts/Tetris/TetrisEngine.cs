@@ -59,6 +59,11 @@ public class TetrisEngine : MonoBehaviour
             field[i] = new int[22];
             viewField[i] = new int[22];
             previousViewField[i] = new int[22];
+            for (int j = 0; j < 22; j++) {
+                field[i][j] = -1;
+                viewField[i][j] = -1;
+                previousViewField[i][j] = -1;
+            }
         }
 
         Clock.clockTick += NextFrame;
@@ -83,20 +88,20 @@ public class TetrisEngine : MonoBehaviour
     }
 
     // Update the view field
-    void UpdateViewField()
+    void UpdateViewField(bool locking = false)
     {
         viewField = CopyArray(field);
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x,y] == 0) {
+                if (currentTetrominoState[x,y] == -1) {
                     continue;
                 }
                 if (x + currentTetrominoPos[0] <= field.Length -1 && y + currentTetrominoPos[1] >= 0)
                 {
                     if (currentTetrominoPos[1] + y >= 0 && currentTetrominoPos[1] + y <= 19 && currentTetrominoPos[0] + x >= 0 && currentTetrominoPos[0] + x <= 9) {
-                        viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
+                        viewField[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = (locking) ? currentTetrominoState[x, y] : 0;
                     }
                 }
             }
@@ -174,10 +179,10 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x,y] == 0) {
+                if (currentTetrominoState[x,y] == -1) {
                     continue;
                 }
-                if (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0)
+                if (currentTetrominoPos[0] + x < 0 || currentTetrominoPos[0] + x > 9 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != -1)
                 {
                     return true;
                 }
@@ -189,7 +194,6 @@ public class TetrisEngine : MonoBehaviour
     // Drops the tetromino by one gridcell if the necessary time has passed
     void DropTetromino()
     {
-        dropCounter++;  //total number of drops is counted as it may be useful to interfacing agents for fitness evaluation
         bool softDroppingThisFrame = buttonInfo.dButton && frameCounter >= previousDropTime + Mathf.Min(2, DropFrameDelays.GetFrameDelay(score.level));
         if (frameCounter >= previousDropTime + DropFrameDelays.GetFrameDelay(score.level) || softDroppingThisFrame)
         {
@@ -244,11 +248,11 @@ public class TetrisEngine : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (currentTetrominoState[x,y] == 0) {
+                if (currentTetrominoState[x,y] == -1) {
                     continue;
                 }
                 try {
-                    if (currentTetrominoPos[1] + y < 0 || currentTetrominoPos[1] + y > 19 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != 0) {
+                    if (currentTetrominoPos[1] + y < 0 || currentTetrominoPos[1] + y > 19 || field[currentTetrominoPos[0] + x][currentTetrominoPos[1] + y] != -1) {
                         return true;
                     }
                 } catch {
@@ -265,13 +269,14 @@ public class TetrisEngine : MonoBehaviour
     // Adds the tetromino to the field and instantiates a new one, returns minimum local y position
     int AddTetrominoToField()
     {
+        dropCounter++;  //total number of drops is counted as it may be useful to interfacing agents for fitness evaluation
         int minYPos = int.MaxValue;
         for (int x = 0; x < 4; x++)
         {
             for (int y = 0; y < 4; y++)
             {
                 if (currentTetrominoPos[0] + x >= 0 && currentTetrominoPos[0] + x < 10 && currentTetrominoPos[1] + y >= 0 && currentTetrominoPos[1] + y < 20) {
-                    if (currentTetrominoState[x, y] != 0 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
+                    if (currentTetrominoState[x, y] != -1 && x + currentTetrominoPos[0] <= field.GetLength(0) - 1 && y + currentTetrominoPos[1] >= 0)
                     {
                         minYPos = Mathf.Min(minYPos, y);
                         field[x + currentTetrominoPos[0]][y + currentTetrominoPos[1]] = currentTetrominoState[x, y];
@@ -279,6 +284,7 @@ public class TetrisEngine : MonoBehaviour
                 }
             }
         }
+        UpdateViewField(true);
         currentTetrominoState = Tetrominoes.zeros;
         if (GetComponent<EngineUI>() != null)
         {
@@ -342,8 +348,8 @@ public class TetrisEngine : MonoBehaviour
             }
             //yield return new WaitForSeconds((4 - frameCounter % 4) / _FRAME_RATE);
             yield return new WaitUntil(() => (frameCounter % 4 == 0));  // frame counter % 4 = 0
-            field[i + 5][y] = 0;
-            field[4 - i][y] = 0;
+            field[i + 5][y] = -1;
+            field[4 - i][y] = -1;
         }
         are = false;
         FallAboveRows(y);
@@ -358,7 +364,7 @@ public class TetrisEngine : MonoBehaviour
     {
         for (int x = 0; x < 10; x++)
         {
-            if (field[x][y] == 0)
+            if (field[x][y] == -1)
             {
                 return false;
             }
@@ -373,7 +379,7 @@ public class TetrisEngine : MonoBehaviour
             for (int x = 0; x < 10; x++)
             {
                 field[x][y - 1] = field[x][y];
-                field[x][y] = 0;
+                field[x][y] = -1;
             }
         }
     }
@@ -423,15 +429,13 @@ public class TetrisEngine : MonoBehaviour
     }
 
     // Takes a 2d "slice" from the array containing rotation info for a specific tetromino, i.e one rotation state
-    public int[,] Slicer3D (int[,,] toSlice, int dimension)
-    {
+    public int[,] Slicer3D (int[,,] toSlice, int depth) {
+
         int[,] slice = new int[4, 4];
 
-        for (int x = 0; x < 4; x++)
-        {
-            for (int y = 0; y < 4; y++)
-            {
-                slice[x, y] = toSlice[dimension, x, y];
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 4; y++) {
+                slice[x, y] = toSlice[depth, x, y];
             }
         }
 

@@ -22,10 +22,10 @@ public class NodeGene
     }
 
     TYPE type;
-    ACTIVATION activation;
+    public ACTIVATION activation;
     int id;
     bool isActive;
-    Dictionary<NodeGene, ConnectionGene> directInNodes;
+    public Dictionary<NodeGene, ConnectionGene> directInNodes;
 
     public float GetActivation(float[] inputs) {
         if (type == TYPE.SENSOR) {
@@ -101,6 +101,10 @@ public class NodeGene
     public TYPE getType()
     {
         return type;
+    }
+    public ACTIVATION getActivation()
+    {
+        return activation;
     }
     public int getId()
     {

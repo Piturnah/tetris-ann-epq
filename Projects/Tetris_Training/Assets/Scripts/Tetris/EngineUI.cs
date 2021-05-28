@@ -1,9 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using Unity.Mathematics;
 
 
 /*
@@ -138,7 +135,7 @@ public class EngineUI : MonoBehaviour
         {
             for (int y = 0; y < 4; y++)
             {
-                if (engine.Slicer3D(tetrominoPool, 0)[x,y] != 0)
+                if (engine.Slicer3D(tetrominoPool, 0)[x,y] != -1)
                 {
                     Vector2 spawnPos = new Vector2(obj.nextTetrominoHolder.position.x -2 + x, obj.nextTetrominoHolder.position.y - 1 + y);
                     GameObject newTile = Instantiate(obj.tileObj, spawnPos, Quaternion.identity);

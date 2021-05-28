@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using System.IO;
@@ -16,10 +14,10 @@ public class TetrisNEAT : MonoBehaviour
     Genome startingGenome = new Genome();
     Evaluator eval;
 
-    int popSize = 512;
-    int batchSize = 100;
+    int popSize = 1024;
+    int batchSize = 200;
     int batched = 0;
-    int generation = 0;
+    public static int generation = 0;
 
     int popIteration = 0;
     int highScore = 0;
@@ -32,10 +30,10 @@ public class TetrisNEAT : MonoBehaviour
     bool agentsPlaying = false;
     bool oneByOne = false;
     GameObject runningAgent;
-    List<int> scores = new List<int>();
-
+    float[] scores;
     void Start()
     {
+        scores = new float[popSize];
         if (Manager.gameType == Manager.GameType.Train) {
             eval = new Evaluator(popSize, startingGenome);
             genText.text = "Generation: " + generation.ToString("0000");
@@ -75,7 +73,6 @@ public class TetrisNEAT : MonoBehaviour
                         if (Manager.gameType == Manager.GameType.Train) {
                             noAgentsPlaying++;
 
-                            //Debug.Log(noAgentsInGen);
                             GameObject newAgent = MakeNewAgent(eval.genomes[noAgentsInGen-1]);
                             
                             if (!displayAlive) {
@@ -93,14 +90,15 @@ public class TetrisNEAT : MonoBehaviour
         }
     }
 
-    void TakeScore(int score, GameObject deadObj, int droppedTetros) {
+    void TakeScore(int score, GameObject deadObj, int droppedTetros, Genome deadGenome) {
         if (deadObj.GetComponent<EngineUI>().enabled) {
             displayAlive = false;
         }
 
         noAgentsPlaying--;
         //Debug.Log(noAgentsPlaying);
-        scores.Add(score + 30 * droppedTetros);
+        //scores[eval.genomes.IndexOf(deadGenome)] = (score + 30 * droppedTetros);
+        scores[eval.genomes.IndexOf(deadGenome)] = (score);
         Destroy(deadObj);
         popIteration++;
         if (noAgentsPlaying == 0) {
@@ -112,13 +110,8 @@ public class TetrisNEAT : MonoBehaviour
 
             eval.Evaluate(scores.ToArray().Select(x => (float)x).ToArray()); // evaluate and breed current genomes
 
-            SaveGenome(eval.GetFittestGenome(), "/" + generation.ToString() + ".tetro");
-
             if (noAgentsInGen == popSize) {
                 batched = 0;
-
-
-
             }
             popIteration = 0;
 
@@ -134,6 +127,7 @@ public class TetrisNEAT : MonoBehaviour
         if (score > highScore) {
             highScore = score;
             UpdateHighScore();
+            print("Highscore of " + highScore.ToString() + "on index " + eval.genomes.IndexOf(deadGenome).ToString());
         }
     }
 
@@ -161,9 +155,9 @@ public class TetrisNEAT : MonoBehaviour
             // add out node
             startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.OUTPUT, 5));
 
-            startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 6));
+            //startingGenome.AddNodeGene(new NodeGene(NodeGene.TYPE.HIDDEN, 6));
 
-            startingGenome.AddConnectionMutation();
+            //startingGenome.AddConnectionMutation();
 
             /*// add initial sensors for board
             for (int y = 1; y < 21; y++) {
@@ -222,7 +216,8 @@ public class TetrisNEAT : MonoBehaviour
 
         FileStream stream = new FileStream(path, FileMode.Create);
 
-        formatter.Serialize(stream, genome);
+        //Create new serialisable GenomeData object from the Genome to save it
+        formatter.Serialize(stream, new GenomeData(genome));
         stream.Close();
     }
 
@@ -233,9 +228,23 @@ public class TetrisNEAT : MonoBehaviour
             BinaryFormatter formatter = new BinaryFormatter();
             FileStream stream = new FileStream(path, FileMode.Open);
 
-            Genome genome = formatter.Deserialize(stream) as Genome;
+            //Deserialise as a GenomeData object
+            GenomeData genome = formatter.Deserialize(stream) as GenomeData;
+
+            //Read GenomeData information to create new Genes for the Genome
+            Genome returnGenome = new Genome();
+            for (int i = 0; i < genome.nodeGeneData.Count; i+=3) {
+                NodeGene newNode = new NodeGene((genome.nodeGeneData[i + 1] == 0) ? NodeGene.TYPE.HIDDEN : ((genome.nodeGeneData[i + 1] == 1) ? NodeGene.TYPE.OUTPUT : NodeGene.TYPE.SENSOR), genome.nodeGeneData[i + 2]);
+                newNode.activation = (genome.nodeGeneData[i] == 0) ? NodeGene.ACTIVATION.SINE : ((genome.nodeGeneData[i] == 1) ? NodeGene.ACTIVATION.COSINE : NodeGene.ACTIVATION.SIGMOID);
+                returnGenome.AddNodeGene(newNode);
+            }
+            for (int i = 0; i < genome.connectionGeneData.Count; i += 5) {
+                ConnectionGene newConnection = new ConnectionGene((int)genome.connectionGeneData[i], (int)genome.connectionGeneData[i + 1], genome.connectionGeneData[i + 2], genome.connectionGeneData[i + 3] == 1, (int)genome.connectionGeneData[i + 4]);
+                returnGenome.AddConnectionGene(newConnection);
+            }
+
             stream.Close();
-            return genome;
+            return returnGenome;
         } else {
             return null;
         }

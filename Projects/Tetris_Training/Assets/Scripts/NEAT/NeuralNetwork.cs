@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-
-public class NeuralNetwork
+﻿public class NeuralNetwork
 {
     public Genome genome;
 

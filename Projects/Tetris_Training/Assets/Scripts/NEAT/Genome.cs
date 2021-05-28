@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using System.Linq;
-using UnityEngine;
 
 [System.Serializable]
 public class Genome
@@ -31,6 +29,7 @@ public class Genome
     public void AddConnectionGene(ConnectionGene gene)
     {
         connections.Add(gene.getInnovation(), gene);
+        //Add connection's in-node as a new direct in-node for the connection's out-node
         GetNodes()[gene.getOutNode()].AddInNode(GetNodes()[gene.getInNode()], gene);
     }
     public void AddNodeGene(NodeGene gene)
@@ -69,13 +68,13 @@ public class Genome
     {
         NodeGene node1 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
         NodeGene node2 = nodes.ElementAt(rand.Next(0, nodes.Count)).Value;
-        float weight = (float)rand.Next(-15, 15) * 0.1f;
+        float weight = rand.Next(-15, 15) * 0.1f;
 
         if (node2.getType() == NodeGene.TYPE.SENSOR || node1.getType() == NodeGene.TYPE.OUTPUT)
         { // swap genes if sensor is output
-            NodeGene tempGene = node1.CopyNode();
-            node1 = node2.CopyNode();
-            node2 = tempGene.CopyNode();
+            NodeGene tempGene = node1;
+            node1 = node2;
+            node2 = tempGene;
         }
 
         if (node1.getType() == NodeGene.TYPE.OUTPUT || node2.getType() == NodeGene.TYPE.SENSOR) {

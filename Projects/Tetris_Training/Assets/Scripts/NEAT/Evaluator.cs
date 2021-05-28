@@ -1,9 +1,5 @@
-using System;
-using System.IO;
 using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Random=System.Random;
 
 public class Evaluator {
@@ -21,8 +17,8 @@ public class Evaluator {
     float dt = 3.0f;
     const float _MUTATION_RATE = 0.8f;
     const float _ADD_CONONECTION_RATE = 0.05f;
-    const float _ADD_NODE_RATE = 0.03f;
-    const float _INTER_SPECIES_RATE = 0.01f;
+    const float _ADD_NODE_RATE = 0.01f;
+    const float _INTER_SPECIES_RATE = 0.05f;
 
     float highestScore;
     Genome fittestGenome;
@@ -59,7 +55,9 @@ public class Evaluator {
         if (Manager.gameType == Manager.GameType.Train) {
             genomes = new List<Genome>(populationSize);
             for (int i = 0; i < populationSize; i++) {
-                genomes.Add(new Genome(startingGenome));
+                Genome newGenome = new Genome(startingGenome);
+                newGenome.AddConnectionMutation();
+                genomes.Add(newGenome);
             }
         }
         else if (Manager.gameType == Manager.GameType.Display) {
@@ -119,14 +117,14 @@ public class Evaluator {
             ConsoleLogger.Log("dt: " + dt.ToString());
         }
         
-        ConsoleLogger.Log("No. species: " + species.Count.ToString());
+        //ConsoleLogger.Log("No. species: " + species.Count.ToString());
 
         // evaluate genomes and assign fitness
         foreach (Genome g in genomes) {
             Species s = speciesMap[g];
 
-            float score = scores.ToList()[genomes.IndexOf(g)];
-            float adjustedScore = score / speciesMap[g].members.Count;
+            float score = scores[genomes.IndexOf(g)];
+            float adjustedScore = score;
 
             s.AddAdjustedFitness(adjustedScore);
             s.fitnessPop.Add(new FitnessGenome(g, adjustedScore));
@@ -136,6 +134,7 @@ public class Evaluator {
                 fittestGenome = g;
             }
         }
+        TetrisNEAT.SaveGenome(fittestGenome, "/" + (TetrisNEAT.generation - 1).ToString() + ".tetro");
 
         // put best genomes from species into next generation
         foreach (Species s in species) {
