@@ -6,7 +6,7 @@
 ## What is this for?
 This project was done for the Extended Project Qualification (EPQ) - which involves writing a short dissertation and optionally producing an artefact. As I've for many years had an interest in machine learning, I decided to attempt to produce a neural network that will play Classic Tetris as the artefact component of the EPQ.
 
-The dissertation is now available in the project source.
+The dissertation can be read on [my website](https://piturnah.xyz/tetris-epq/paper.pdf) or in the project [source](./paper.pdf)
 
 ## Getting Started
 If you just want to have a look at the program, it is available at [my website](https://piturnah.xyz/tetris-epq/). However, it should be noted that this build is not the best representation of the project.
