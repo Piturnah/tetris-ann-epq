@@ -17,6 +17,9 @@ Alternatively, you can install the [Unity Engine](https://unity.com/) and clone 
 git clone https://github.com/Piturnah/tetris-ann-epq.git
 ```
 
+## References
+The [NEAT](./Projects/Tetris_Training/Assets/Scripts/NEAT) portion of the code was built with a lot of reference to [NEAT Paper](https://www.cs.utexas.edu/ftp/AI-Lab/tech-reports/UT-AI-TR-01-290.pdf) and Finn Egger's [Java implementation](https://www.youtube.com/playlist?list=PLgomWLYGNl1fcL0o4exBShNeCC5tc6s9C).
+
 ## Built with
 
 - [Unity Engine](https://unity.com/)
